@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sistem Perpustakaan</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- JsBarcode -->
+  <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+
+  <!-- SheetJS (xlsx) untuk import/export excel -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-100 flex">
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="w-64 h-screen bg-indigo-900 text-white flex flex-col transition-transform duration-300">
+    <div class="p-4 flex items-center justify-between border-b border-indigo-700">
+      <span class="text-2xl font-bold flex items-center gap-2">?? <span>Perpustakaan</span></span>
+      <button onclick="toggleSidebar()" class="md:hidden">?</button>
+    </div>
+
+    <nav class="flex-1 p-2 overflow-y-auto space-y-1">
+      <!-- Beranda -->
+      <a href="#" onclick="showPage('beranda')" class="flex items-center p-2 rounded-lg hover:bg-indigo-700 transition">?? <span class="ml-2">Beranda</span></a>
+
+      <!-- Data Buku -->
+      <div>
+        <button onclick="toggleMenu('menuBuku')" class="w-full flex items-center p-2 rounded-lg hover:bg-indigo-700 transition">
+          ?? <span class="ml-2 flex-1 text-left">Data Buku</span>
+          <svg id="icon-menuBuku" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+        <div id="menuBuku" class="ml-8 mt-1 max-h-0 overflow-hidden transition-all duration-300 space-y-1 text-sm">
+          <a href="#" onclick="showPage('daftarBuku')" class="block p-1 hover:text-yellow-300">Daftar Buku</a>
+          <a href="#" onclick="showPage('tambahBuku')" class="block p-1 hover:text-yellow-300">Tambah Buku</a>
+          <a href="#" onclick="showPage('importBuku')" class="block p-1 hover:text-yellow-300">Import/Export</a>
+          <a href="#" onclick="showPage('klasifikasi')" class="block p-1 hover:text-yellow-300">Klasifikasi & Rak</a>
+          <a href="#" onclick="showPage('cetakLabel')" class="block p-1 hover:text-yellow-300">Cetak Label</a>
+          <a href="#" onclick="showPage('cetakBarcode')" class="block p-1 hover:text-yellow-300">Cetak Barcode</a>
+        </div>
+      </div>
+
+      <!-- Data Anggota -->
+      <div>
+        <button onclick="toggleMenu('menuAnggota')" class="w-full flex items-center p-2 rounded-lg hover:bg-indigo-700 transition">
+          ?? <span class="ml-2 flex-1 text-left">Data Anggota</span>
+          <svg id="icon-menuAnggota" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+        <div id="menuAnggota" class="ml-8 mt-1 max-h-0 overflow-hidden transition-all duration-300 space-y-1 text-sm">
+          <a href="#" onclick="showPage('daftarAnggota')" class="block p-1 hover:text-yellow-300">Daftar Anggota</a>
+          <a href="#" onclick="showPage('tambahAnggota')" class="block p-1 hover:text-yellow-300">Tambah Anggota</a>
+          <a href="#" onclick="showPage('importAnggota')" class="block p-1 hover:text-yellow-300">Import/Export</a>
+          <a href="#" onclick="showPage('cetakKartu')" class="block p-1 hover:text-yellow-300">Cetak Kartu</a>
+        </div>
+      </div>
+
+      <!-- Sirkulasi -->
+      <div>
+        <button onclick="toggleMenu('menuSirkulasi')" class="w-full flex items-center p-2 rounded-lg hover:bg-indigo-700 transition">
+          ?? <span class="ml-2 flex-1 text-left">Sirkulasi</span>
+          <svg id="icon-menuSirkulasi" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+        <div id="menuSirkulasi" class="ml-8 mt-1 max-h-0 overflow-hidden transition-all duration-300 space-y-1 text-sm">
+          <a href="#" onclick="showPage('peminjaman')" class="block p-1 hover:text-yellow-300">Peminjaman</a>
+          <a href="#" onclick="showPage('pengembalian')" class="block p-1 hover:text-yellow-300">Pengembalian</a>
+          <a href="#" onclick="showPage('dataPeminjaman')" class="block p-1 hover:text-yellow-300">Data Peminjaman</a>
+          <a href="#" onclick="showPage('dataPengembalian')" class="block p-1 hover:text-yellow-300">Data Pengembalian</a>
+          <a href="#" onclick="showPage('reservasi')" class="block p-1 hover:text-yellow-300">Reservasi Buku</a>
+          <a href="#" onclick="showPage('perpanjangan')" class="block p-1 hover:text-yellow-300">Perpanjangan</a>
+          <a href="#" onclick="showPage('riwayat')" class="block p-1 hover:text-yellow-300">Riwayat Pinjam</a>
+        </div>
+      </div>
+
+      <!-- Laporan -->
+      <div>
+        <button onclick="toggleMenu('menuLaporan')" class="w-full flex items-center p-2 rounded-lg hover:bg-indigo-700 transition">
+          ?? <span class="ml-2 flex-1 text-left">Laporan</span>
+          <svg id="icon-menuLaporan" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+        <div id="menuLaporan" class="ml-8 mt-1 max-h-0 overflow-hidden transition-all duration-300 space-y-1 text-sm">
+          <a href="#" onclick="showPage('laporanPeminjaman')" class="block p-1 hover:text-yellow-300">Laporan Peminjaman</a>
+          <a href="#" onclick="showPage('laporanPengembalian')" class="block p-1 hover:text-yellow-300">Laporan Pengembalian</a>
+          <a href="#" onclick="showPage('laporanDenda')" class="block p-1 hover:text-yellow-300">Laporan Denda</a>
+          <a href="#" onclick="showPage('laporanBukuHilang')" class="block p-1 hover:text-yellow-300">Laporan Buku Hilang</a>
+          <a href="#" onclick="showPage('laporanAnggotaAktif')" class="block p-1 hover:text-yellow-300">Laporan Anggota Aktif</a>
+        </div>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Konten Utama -->
+  <main class="flex-1 p-6 space-y-8">
+
+    <!-- Halaman Beranda -->
+    <section id="page-beranda">
+      <h1 class="text-2xl font-bold mb-4">Selamat Datang di Sistem Perpustakaan</h1>
+      <p class="mb-6 text-gray-700">Berikut adalah ringkasan data perpustakaan Anda.</p>
+
+      <!-- Cards Statistik -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white shadow-md rounded-lg p-4">
+          <h2 class="text-gray-500">Total Buku</h2>
+          <p id="stat-total-buku" class="text-2xl font-bold">0</p>
+        </div>
+        <div class="bg-white shadow-md rounded-lg p-4">
+          <h2 class="text-gray-500">Total Anggota</h2>
+          <p id="stat-total-anggota" class="text-2xl font-bold">0</p>
+        </div>
+        <div class="bg-white shadow-md rounded-lg p-4">
+          <h2 class="text-gray-500">Pinjaman Aktif</h2>
+          <p id="stat-total-peminjaman" class="text-2xl font-bold">0</p>
+        </div>
+        <div class="bg-white shadow-md rounded-lg p-4">
+          <h2 class="text-gray-500">Buku Terlambat</h2>
+          <p id="stat-total-terlambat" class="text-2xl font-bold text-red-600">0</p>
+        </div>
+      </div>
+
+      <!-- Grafik -->
+      <div class="bg-white shadow-md rounded-lg p-4 mb-6">
+        <h2 class="text-lg font-bold mb-4">Grafik Peminjaman 6 Bulan Terakhir</h2>
+        <canvas id="chartPeminjaman" height="100"></canvas>
+      </div>
+    </section>
+
+    <!-- Daftar Buku -->
+    <section id="page-daftarBuku" class="hidden">
+      <h2 class="text-xl font-bold mb-4">?? Daftar Buku</h2>
+      <div class="flex gap-2 mb-3">
+        <input id="importBukuFile" type="file" accept=".csv, .xlsx" />
+        <button onclick="importDataFromFile('books', 'importBukuFile')" class="bg-yellow-500 px-3 py-1 rounded">Import</button>
+        <button onclick="exportDataToFile('books', 'books_export')" class="bg-blue-500 px-3 py-1 rounded text-white">Export CSV</button>
+        <button onclick="exportDataToXLSX('books', 'books_export.xlsx')" class="bg-green-600 px-3 py-1 rounded text-white">Export XLSX</button>
+      </div>
+      <table class="w-full bg-white shadow-md rounded-lg overflow-hidden">
+        <thead class="bg-indigo-900 text-white">
+          <tr>
+            <th class="p-2">Kode</th>
+            <th class="p-2">Judul</th>
+            <th class="p-2">Pengarang</th>
+            <th class="p-2">Tahun</th>
+            <th class="p-2">Rak</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-books">
+          <!-- diisi via JS -->
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Tambah Buku -->
+    <section id="page-tambahBuku" class="hidden">
+      <h2 class="text-xl font-bold mb-4">? Tambah Buku</h2>
+      <form id="form-buku" class="bg-white shadow-md rounded-lg p-4 space-y-3">
+        <input name="kode" type="text" placeholder="Kode Buku" class="w-full p-2 border rounded" required />
+        <input name="judul" type="text" placeholder="Judul Buku" class="w-full p-2 border rounded" required />
+        <input name="pengarang" type="text" placeholder="Pengarang" class="w-full p-2 border rounded">
+        <input name="tahun" type="number" placeholder="Tahun Terbit" class="w-full p-2 border rounded">
+        <input name="rak" type="text" placeholder="Rak Buku" class="w-full p-2 border rounded">
+        <button class="bg-indigo-900 text-white px-4 py-2 rounded">Simpan</button>
+      </form>
+    </section>
+
+    <!-- Import/Export Buku (halaman bantuan) -->
+    <section id="page-importBuku" class="hidden">
+      <h2 class="text-xl font-bold mb-4">?? Import / Export Data Buku</h2>
+      <p class="text-gray-600">Gunakan tombol import/export di halaman Daftar Buku.</p>
+    </section>
+
+    <!-- Klasifikasi & Rak -->
+    <section id="page-klasifikasi" class="hidden">
+      <h2 class="text-xl font-bold mb-4">??? Klasifikasi & Rak Buku</h2>
+      <table class="w-full bg-white shadow-md rounded-lg overflow-hidden">
+        <thead class="bg-indigo-900 text-white">
+          <tr>
+            <th class="p-2">Kode Rak</th>
+            <th class="p-2">Kategori</th>
+            <th class="p-2">Lokasi Rak</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-klasifikasi">
+          <!-- kosong, bisa diisi manual -->
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Cetak Label -->
+    <section id="page-cetakLabel" class="hidden">
+      <h2 class="text-xl font-bold mb-4">??? Cetak Label Buku</h2>
+      <form id="form-cetak-label" class="space-y-2 bg-white p-4 rounded shadow">
+        <input id="labelKode" type="text" placeholder="Masukkan Kode Buku" class="w-full p-2 border rounded">
+        <button onclick="generateLabel(event)" class="bg-indigo-900 text-white px-4 py-2 rounded">Cetak Label</button>
+      </form>
+      <div id="labelArea" class="mt-4"></div>
+    </section>
+
+    <!-- Cetak Barcode -->
+    <section id="page-cetakBarcode" class="hidden">
+      <h2 class="text-xl font-bold mb-4">??? Cetak Barcode Buku</h2>
+      <form id="form-barcode-buku" onsubmit="generateBarcode(event)" class="space-y-2 bg-white p-4 rounded shadow">
+        <input id="kodeBarcode" name="kodeBarcode" type="text" placeholder="Masukkan Kode Buku" class="w-full p-2 border rounded">
+        <button class="bg-indigo-900 text-white px-4 py-2 rounded">Generate Barcode</button>
+      </form>
+      <div id="barcodeArea" class="mt-4 p-4 border rounded bg-gray-50 text-center"></div>
+    </section>
+
+    <!-- Daftar Anggota -->
+    <section id="page-daftarAnggota" class="hidden">
+      <h2 class="text-xl font-bold mb-4">?? Daftar Anggota</h2>
+      <div class="flex gap-2 mb-3">
+        <input id="importAnggotaFile" type="file" accept=".csv, .xlsx" />
+        <button onclick="importDataFromFile('members', 'importAnggotaFile')" class="bg-yellow-500 px-3 py-1 rounded">Import</button>
+        <button onclick="exportDataToFile('members', 'members_export')" class="bg-blue-500 px-3 py-1 rounded text-white">Export CSV</button>
+        <button onclick="exportDataToXLSX('members', 'members_export.xlsx')" class="bg-green-600 px-3 py-1 rounded text-white">Export XLSX</button>
+      </div>
+      <table class="w-full bg-white shadow-md rounded-lg overflow-hidden">
+        <thead class="bg-indigo-900 text-white">
+          <tr>
+            <th class="p-2">ID Anggota</th>
+            <th class="p-2">Nama</th>
+            <th class="p-2">Kelas/Alamat</th>
+            <th class="p-2">No. HP</th>
+            <th class="p-2">Status</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-members"></tbody>
+      </table>
+    </section>
+
+    <!-- Tambah Anggota -->
+    <section id="page-tambahAnggota" class="hidden">
+      <h2 class="text-xl font-bold mb-4">? Tambah Anggota</h2>
+      <form id="form-member" class="bg-white shadow-md rounded-lg p-4 space-y-3">
+        <input name="id" type="text" placeholder="ID Anggota" class="w-full p-2 border rounded" required />
+        <input name="nama" type="text" placeholder="Nama Lengkap" class="w-full p-2 border rounded" required />
+        <input name="kelas" type="text" placeholder="Kelas / Alamat" class="w-full p-2 border rounded" />
+        <input name="hp" type="text" placeholder="No. HP" class="w-full p-2 border rounded" />
+        <select name="status" class="w-full p-2 border rounded">
+          <option value="Aktif">Aktif</option>
+          <option value="Nonaktif">Nonaktif</option>
+        </select>
+        <button class="bg-indigo-900 text-white px-4 py-2 rounded">Simpan</button>
+      </form>
+    </section>
+
+    <!-- Import/Export Anggota (bantuan) -->
+    <section id="page-importAnggota" class="hidden">
+      <h2 class="text-xl font-bold mb-4">?? Import / Export Data Anggota</h2>
+      <p class="text-gray-600">Gunakan tombol import/export di halaman Daftar Anggota.</p>
+    </section>
+
+    <!-- Cetak Kartu Anggota -->
+    <section id="page-cetakKartu" class="hidden">
+      <h2 class="text-xl font-bold mb-4">?? Cetak Kartu Anggota</h2>
+      <div class="bg-white p-4 rounded shadow">
+        <form id="form-kartu" onsubmit="generateCardBarcode(event)" class="space-y-2">
+          <input id="kodeAnggota" name="kodeAnggota" type="text" placeholder="Masukkan ID Anggota" class="w-full p-2 border rounded">
+          <button class="bg-indigo-900 text-white px-4 py-2 rounded">Generate Kartu</button>
+        </form>
+        <div id="cardArea" class="mt-4 p-4 border rounded bg-gray-50 text-center hidden">
+          <h3 class="font-bold">Kartu Anggota</h3>
+          <p id="namaAnggota">Nama: -</p>
+          <p id="idAnggota">ID: -</p>
+          <div id="barcodeCard" class="mt-2"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Peminjaman -->
+    <section id="page-peminjaman" class="hidden">
+      <h2 class="text-xl font-bold mb-4">?? Form Peminjaman</h2>
+      <form id="form-loan" class="bg-white shadow-md rounded-lg p-4 space-y-3">
+        <input name="id" type="text" placeholder="ID Pinjam" class="w-full p-2 border rounded" required />
+        <input name="idAnggota" type="text" placeholder="ID Anggota" class="w-full p-2 border rounded" required />
+        <input name="kodeBuku" type="text" placeholder="Kode Buku" class="w-full p-2 border rounded" required />
+        <input name="tglPinjam" type="date" placeholder="Tanggal Pinjam" class="w-full p-2 border rounded" />
+        <button class="bg-indigo-900 text-white px-4 py-2 rounded">Simpan</button>
+      </form>
+    </section>
+
+    <!-- Pengembalian -->
+    <section id="page-pengembalian" class="hidden">
+      <h2 class="text-xl font-bold mb-4">?? Form Pengembalian</h2>
+      <form id="form-return" class="bg-white shadow-md rounded-lg p-4 space-y-3">
+        <input name="id" type="text" placeholder="ID Kembali" class="w-full p-2 border rounded" required />
+        <input name="idPinjam" type="text" placeholder="ID Pinjam" class="w-full p-2 border rounded" required />
+        <input name="tglKembali" type="date" placeholder="Tanggal Kembali" class="w-full p-2 border rounded" />
+        <input name="denda" type="number" placeholder="Denda (Rp)" class="w-full p-2 border rounded" />
+        <button class="bg-indigo-900 text-white px-4 py-2 rounded">Simpan</button>
+      </form>
+    </section>
+
+    <!-- Data Peminjaman (tabel) -->
+    <section id="page-dataPeminjaman" class="hidden">
+      <h2 class="text-xl font-bold mb-4">?? Data Peminjaman</h2>
+      <div class="flex gap-2 mb-3">
+        <button onclick="exportDataToFile('loans', 'loans_export')" class="bg-blue-500 px-3 py-1 rounded text-white">Export CSV</button>
+        <button onclick="exportDataToXLSX('loans', 'loans_export.xlsx')" class="bg-green-600 px-3 py-1 rounded text-white">Export XLSX</button>
+      </div>
+      <table class="w-full bg-white shadow-md rounded-lg overflow-hidden">
+        <thead class="bg-indigo-900 text-white">
+          <tr>
+            <th class="p-2">ID Pinjam</th>
+            <th class="p-2">ID Anggota</th>
+            <th class="p-2">Kode Buku</th>
+            <th class="p-2">Tanggal Pinjam</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-loans"></tbody>
+      </table>
+    </section>
+
+    <!-- Data Pengembalian -->
+    <section id="page-dataPengembalian" class="hidden">
+      <h2 class="text-xl font-bold mb-4">?? Data Pengembalian</h2>
+      <div class="flex gap-2 mb-3">
+        <button onclick="exportDataToFile('returns', 'returns_export')" class="bg-blue-500 px-3 py-1 rounded text-white">Export CSV</button>
+        <button onclick="exportDataToXLSX('returns', 'returns_export.xlsx')" class="bg-green-600 px-3 py-1 rounded text-white">Export XLSX</button>
+      </div>
+      <table class="w-full bg-white shadow-md rounded-lg overflow-hidden">
+        <thead class="bg-indigo-900 text-white">
+          <tr>
+            <th class="p-2">ID Kembali</th>
+            <th class="p-2">ID Pinjam</th>
+            <th class="p-2">Tanggal Kembali</th>
+            <th class="p-2">Denda</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-returns"></tbody>
+      </table>
+    </section>
+
+    <!-- Reservasi -->
+    <section id="page-reservasi" class="hidden">
+      <h2 class="text-xl font-bold mb-4">?? Reservasi Buku</h2>
+      <form id="form-resv" class="bg-white shadow-md rounded-lg p-4 space-y-3">
+        <input name="id" type="text" placeholder="ID Reservasi" class="w-full p-2 border rounded" required />
+        <input name="idAnggota" type="text" placeholder="ID Anggota" class="w-full p-2 border rounded" />
+        <input name="kodeBuku" type="text" placeholder="Kode Buku" class="w-full p-2 border rounded" />
+        <input name="tglReservasi" type="date" placeholder="Tanggal Reservasi" class="w-full p-2 border rounded" />
+        <button class="bg-indigo-900 text-white px-4 py-2 rounded">Simpan</button>
+      </form>
+    </section>
+
+    <!-- Perpanjangan -->
+    <section id="page-perpanjangan" class="hidden">
+      <h2 class="text-xl font-bold mb-4">? Perpanjangan Peminjaman</h2>
+      <form id="form-extend" class="bg-white shadow-md rounded-lg p-4 space-y-3">
+        <input name="idPinjam" type="text" placeholder="ID Pinjam" class="w-full p-2 border rounded" required />
+        <input name="tglBaru" type="date" placeholder="Tanggal Baru" class="w-full p-2 border rounded" required />
+        <button class="bg-indigo-900 text-white px-4 py-2 rounded">Perpanjang</button>
+      </form>
+    </section>
+
+    <!-- Riwayat -->
+    <section id="page-riwayat" class="hidden">
+      <h2 class="text-xl font-bold mb-4">?? Riwayat Pinjaman</h2>
+      <table class="w-full bg-white shadow-md rounded-lg overflow-hidden">
+        <thead class="bg-indigo-900 text-white">
+          <tr>
+            <th class="p-2">ID</th>
+            <th class="p-2">Nama Anggota</th>
+            <th class="p-2">Judul Buku</th>
+            <th class="p-2">Tanggal Pinjam</th>
+            <th class="p2">Tanggal Kembali</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-history"></tbody>
+      </table>
+    </section>
+
+    <!-- Laporan (semua laporan kosong, diisi dari data yang ada) -->
+    <section id="page-laporanPeminjaman" class="hidden">
+      <h2 class="text-xl font-bold mb-4">?? Laporan Peminjaman</h2>
+      <table class="w-full bg-white shadow rounded-lg">
+        <thead class="bg-indigo-900 text-white">
+          <tr>
+            <th class="p-2">No</th>
+            <th class="p-2">ID Pinjam</th>
+            <th class="p-2">ID Anggota</th>
+            <th class="p-2">Kode Buku</th>
+            <th class="p-2">Tanggal Pinjam</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-laporan-peminjaman"></tbody>
+      </table>
+    </section>
+
+    <section id="page-laporanPengembalian" class="hidden">
+      <h2 class="text-xl font-bold mb-4">?? Laporan Pengembalian</h2>
+      <table class="w-full bg-white shadow rounded-lg">
+        <thead class="bg-indigo-900 text-white">
+          <tr>
+            <th class="p-2">No</th>
+            <th class="p-2">ID Kembali</th>
+            <th class="p-2">ID Pinjam</th>
+            <th class="p-2">Tanggal Kembali</th>
+            <th class="p-2">Denda</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-laporan-returns"></tbody>
+      </table>
+    </section>
+
+    <section id="page-laporanDenda" class="hidden">
+      <h2 class="text-xl font-bold mb-4">?? Laporan Denda</h2>
+      <table class="w-full bg-white shadow rounded-lg">
+        <thead class="bg-indigo-900 text-white">
+          <tr>
+            <th class="p-2">No</th><th class="p-2">ID Kembali</th><th class="p-2">Denda</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-laporan-denda"></tbody>
+      </table>
+    </section>
+
+    <section id="page-laporanBukuHilang" class="hidden">
+      <h2 class="text-xl font-bold mb-4">?? Laporan Buku Hilang</h2>
+      <table class="w-full bg-white shadow rounded-lg">
+        <thead class="bg-indigo-900 text-white">
+          <tr>
+            <th class="p-2">No</th><th class="p-2">ID Kembali/ID Reservasi</th><th class="p-2">Keterangan</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-laporan-hilang"></tbody>
+      </table>
+    </section>
+
+    <section id="page-laporanAnggotaAktif" class="hidden">
+      <h2 class="text-xl font-bold mb-4">?? Laporan Anggota Aktif</h2>
+      <table class="w-full bg-white shadow rounded-lg">
+        <thead class="bg-indigo-900 text-white">
+          <tr><th class="p-2">No</th><th class="p-2">ID Anggota</th><th class="p-2">Nama</th><th class="p-2">Total Pinjam</th></tr>
+        </thead>
+        <tbody id="tbody-laporan-anggota-aktif"></tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <!-- Script -->
+  <script src="app.js"></script>
+</body>
+</html>

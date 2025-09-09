@@ -1,0 +1,492 @@
+/* app.js - logika utama */
+
+// ---------- Utilities ----------
+const STORAGE_KEYS = {
+  books: 'app_books',
+  members: 'app_members',
+  loans: 'app_loans',
+  returns: 'app_returns',
+  reservations: 'app_reservations',
+  extensions: 'app_extensions'
+};
+
+function save(key, data) {
+  localStorage.setItem(key, JSON.stringify(data));
+}
+function load(key) {
+  return JSON.parse(localStorage.getItem(key) || '[]');
+}
+function download(filename, content, mime='text/csv') {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// convert array of objects to CSV (simple)
+function toCSV(arr) {
+  if (!arr || arr.length === 0) return '';
+  const keys = Object.keys(arr[0]);
+  const lines = [keys.join(',')];
+  arr.forEach(obj => {
+    const row = keys.map(k => {
+      let v = obj[k] === undefined || obj[k] === null ? '' : String(obj[k]);
+      // escape quotes
+      if (v.includes('"') || v.includes(',') || v.includes('\n')) {
+        v = '"' + v.replace(/"/g, '""') + '"';
+      }
+      return v;
+    }).join(',');
+    lines.push(row);
+  });
+  return lines.join('\n');
+}
+
+// parse simple CSV to array of objects (first row header)
+function parseCSV(text) {
+  const rows = text.split(/\r\n|\n/).filter(r => r.trim() !== '');
+  if (rows.length === 0) return [];
+  const header = rows[0].split(',').map(h => h.replace(/^"|"$/g,'').trim());
+  const data = [];
+  for (let i=1;i<rows.length;i++){
+    const cols = rows[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
+    const obj = {};
+    header.forEach((h, idx) => {
+      let val = (cols[idx] || '').trim();
+      if (val.startsWith('"') && val.endsWith('"')) val = val.slice(1,-1).replace(/""/g,'"');
+      obj[h] = val;
+    });
+    data.push(obj);
+  }
+  return data;
+}
+
+// ---------- UI Helpers ----------
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('-translate-x-64');
+}
+function toggleMenu(id) {
+  const menu = document.getElementById(id);
+  const icon = document.getElementById('icon-' + id);
+  if (!menu) return;
+  if (menu.classList.contains('max-h-0')) {
+    menu.classList.remove('max-h-0'); menu.classList.add('max-h-96'); if (icon) icon.classList.add('rotate-180');
+  } else {
+    menu.classList.remove('max-h-96'); menu.classList.add('max-h-0'); if (icon) icon.classList.remove('rotate-180');
+  }
+}
+
+// showPage keeps old behavior: show element with id="page-" + page
+function showPage(page) {
+  document.querySelectorAll('main section').forEach(sec => sec.classList.add('hidden'));
+  const el = document.getElementById('page-' + page);
+  if (el) el.classList.remove('hidden');
+  // update dashboard stats & charts if needed
+  renderAll();
+}
+
+// ---------- Render Functions ----------
+function renderBooks() {
+  const tb = document.getElementById('tbody-books');
+  const arr = load(STORAGE_KEYS.books);
+  tb.innerHTML = '';
+  arr.forEach(item => {
+    const tr = document.createElement('tr');
+    tr.className = 'border-b';
+    tr.innerHTML = `<td class="p-2">${item.kode||''}</td>
+                    <td class="p-2">${item.judul||''}</td>
+                    <td class="p-2">${item.pengarang||''}</td>
+                    <td class="p-2">${item.tahun||''}</td>
+                    <td class="p-2">${item.rak||''}</td>`;
+    tb.appendChild(tr);
+  });
+  document.getElementById('stat-total-buku').innerText = arr.length;
+}
+
+function renderMembers() {
+  const tb = document.getElementById('tbody-members');
+  const arr = load(STORAGE_KEYS.members);
+  tb.innerHTML = '';
+  arr.forEach(item => {
+    const tr = document.createElement('tr');
+    tr.className = 'border-b';
+    tr.innerHTML = `<td class="p-2">${item.id||''}</td>
+                    <td class="p-2">${item.nama||''}</td>
+                    <td class="p-2">${item.kelas||''}</td>
+                    <td class="p-2">${item.hp||''}</td>
+                    <td class="p-2">${item.status||''}</td>`;
+    tb.appendChild(tr);
+  });
+  document.getElementById('stat-total-anggota').innerText = arr.length;
+}
+
+function renderLoans() {
+  const tb = document.getElementById('tbody-loans');
+  const arr = load(STORAGE_KEYS.loans);
+  tb.innerHTML = '';
+  arr.forEach(item => {
+    const tr = document.createElement('tr');
+    tr.className = 'border-b';
+    tr.innerHTML = `<td class="p-2">${item.id||''}</td>
+                    <td class="p-2">${item.idAnggota||''}</td>
+                    <td class="p-2">${item.kodeBuku||''}</td>
+                    <td class="p-2">${item.tglPinjam||''}</td>`;
+    tb.appendChild(tr);
+  });
+  document.getElementById('stat-total-peminjaman').innerText = arr.length;
+}
+
+function renderReturns() {
+  const tb = document.getElementById('tbody-returns');
+  const arr = load(STORAGE_KEYS.returns);
+  tb.innerHTML = '';
+  let terlambat = 0;
+  arr.forEach(item => {
+    const tr = document.createElement('tr');
+    tr.className = 'border-b';
+    tr.innerHTML = `<td class="p-2">${item.id||''}</td>
+                    <td class="p-2">${item.idPinjam||''}</td>
+                    <td class="p-2">${item.tglKembali||''}</td>
+                    <td class="p-2 text-red-600">${item.denda ? 'Rp ' + item.denda : 'Rp 0'}</td>`;
+    tb.appendChild(tr);
+    if (item.denda && Number(item.denda) > 0) terlambat++;
+  });
+  document.getElementById('stat-total-terlambat').innerText = terlambat;
+}
+
+function renderHistory() {
+  const tb = document.getElementById('tbody-history');
+  const loans = load(STORAGE_KEYS.loans);
+  const returns = load(STORAGE_KEYS.returns);
+  tb.innerHTML = '';
+  // combine loans + returns by id (simple)
+  loans.forEach(l => {
+    const r = returns.find(x => x.idPinjam == l.id);
+    const tr = document.createElement('tr');
+    tr.className = 'border-b';
+    tr.innerHTML = `<td class="p-2">${l.id||''}</td>
+                    <td class="p-2">${l.idAnggota||''}</td>
+                    <td class="p-2">${l.kodeBuku||''}</td>
+                    <td class="p-2">${l.tglPinjam||''}</td>
+                    <td class="p-2">${r ? r.tglKembali : '-'}</td>`;
+    tb.appendChild(tr);
+  });
+}
+
+// laporan renderers
+function renderReports() {
+  // laporan peminjaman
+  const rptP = document.getElementById('tbody-laporan-peminjaman');
+  rptP.innerHTML = '';
+  load(STORAGE_KEYS.loans).forEach((l, idx) => {
+    const tr = document.createElement('tr'); tr.className='border';
+    tr.innerHTML = `<td class="p-2">${idx+1}</td>
+                    <td class="p-2">${l.id||''}</td>
+                    <td class="p-2">${l.idAnggota||''}</td>
+                    <td class="p-2">${l.kodeBuku||''}</td>
+                    <td class="p-2">${l.tglPinjam||''}</td>`;
+    rptP.appendChild(tr);
+  });
+
+  // laporan returns
+  const rptR = document.getElementById('tbody-laporan-returns'); rptR.innerHTML='';
+  load(STORAGE_KEYS.returns).forEach((r, idx) => {
+    const tr = document.createElement('tr'); tr.className='border';
+    tr.innerHTML = `<td class="p-2">${idx+1}</td>
+                    <td class="p-2">${r.id||''}</td>
+                    <td class="p-2">${r.idPinjam||''}</td>
+                    <td class="p-2">${r.tglKembali||''}</td>
+                    <td class="p-2">${r.denda ? 'Rp ' + r.denda : 'Rp 0'}</td>`;
+    rptR.appendChild(tr);
+  });
+
+  // laporan denda
+  const rptD = document.getElementById('tbody-laporan-denda'); rptD.innerHTML='';
+  load(STORAGE_KEYS.returns).forEach((r, idx) => {
+    if (r.denda && Number(r.denda) > 0) {
+      const tr = document.createElement('tr'); tr.className='border';
+      tr.innerHTML = `<td class="p-2">${idx+1}</td>
+                      <td class="p-2">${r.id||''}</td>
+                      <td class="p-2 text-red-600">Rp ${r.denda}</td>`;
+      rptD.appendChild(tr);
+    }
+  });
+
+  // laporan buku hilang (we keep empty unless you import or mark)
+  const rptH = document.getElementById('tbody-laporan-hilang'); rptH.innerHTML='';
+
+  // laporan anggota aktif
+  const rptA = document.getElementById('tbody-laporan-anggota-aktif'); rptA.innerHTML='';
+  const members = load(STORAGE_KEYS.members);
+  const loans = load(STORAGE_KEYS.loans);
+  members.forEach((m, idx) => {
+    const total = loans.filter(l => l.idAnggota === m.id).length;
+    const tr = document.createElement('tr'); tr.className = 'border';
+    tr.innerHTML = `<td class="p-2">${idx+1}</td>
+                    <td class="p-2">${m.id||''}</td>
+                    <td class="p-2">${m.nama||''}</td>
+                    <td class="p-2">${total}</td>`;
+    rptA.appendChild(tr);
+  });
+}
+
+// render all combos
+function renderAll() {
+  renderBooks();
+  renderMembers();
+  renderLoans();
+  renderReturns();
+  renderHistory();
+  renderReports();
+  updateCharts();
+}
+
+// ---------- Form Handlers ----------
+document.addEventListener('DOMContentLoaded', function() {
+  // initial render
+  renderAll();
+
+  // Books form
+  const formBuku = document.getElementById('form-buku');
+  if (formBuku) {
+    formBuku.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const data = new FormData(this);
+      const obj = {};
+      for (const [k,v] of data.entries()) obj[k]=v;
+      const arr = load(STORAGE_KEYS.books);
+      arr.push(obj);
+      save(STORAGE_KEYS.books, arr);
+      this.reset();
+      renderBooks(); updateCharts();
+      alert('Buku tersimpan!');
+    });
+  }
+
+  // Members form
+  const formMember = document.getElementById('form-member');
+  if (formMember) {
+    formMember.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const data = new FormData(this);
+      const obj = {};
+      for (const [k,v] of data.entries()) obj[k]=v;
+      const arr = load(STORAGE_KEYS.members);
+      arr.push(obj);
+      save(STORAGE_KEYS.members, arr);
+      this.reset();
+      renderMembers(); updateCharts();
+      alert('Anggota tersimpan!');
+    });
+  }
+
+  // Loans (peminjaman)
+  const formLoan = document.getElementById('form-loan');
+  if (formLoan) {
+    formLoan.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const data = new FormData(this);
+      const obj = {};
+      for (const [k,v] of data.entries()) obj[k]=v;
+      const arr = load(STORAGE_KEYS.loans);
+      arr.push(obj);
+      save(STORAGE_KEYS.loans, arr);
+      this.reset();
+      renderLoans(); renderHistory(); renderReports(); updateCharts();
+      alert('Peminjaman tersimpan!');
+    });
+  }
+
+  // Returns (pengembalian)
+  const formReturn = document.getElementById('form-return');
+  if (formReturn) {
+    formReturn.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const data = new FormData(this);
+      const obj = {};
+      for (const [k,v] of data.entries()) obj[k]=v;
+      const arr = load(STORAGE_KEYS.returns);
+      arr.push(obj);
+      save(STORAGE_KEYS.returns, arr);
+      this.reset();
+      renderReturns(); renderHistory(); renderReports(); updateCharts();
+      alert('Pengembalian tersimpan!');
+    });
+  }
+
+  // Reservasi
+  const formResv = document.getElementById('form-resv');
+  if (formResv) {
+    formResv.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const data = new FormData(this);
+      const obj = {};
+      for (const [k,v] of data.entries()) obj[k]=v;
+      const arr = load(STORAGE_KEYS.reservations);
+      arr.push(obj);
+      save(STORAGE_KEYS.reservations, arr);
+      this.reset();
+      alert('Reservasi tersimpan!');
+    });
+  }
+
+  // Perpanjangan
+  const formExt = document.getElementById('form-extend');
+  if (formExt) {
+    formExt.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const data = new FormData(this);
+      const obj = {};
+      for (const [k,v] of data.entries()) obj[k]=v;
+      const arr = load(STORAGE_KEYS.extensions);
+      arr.push(obj);
+      save(STORAGE_KEYS.extensions, arr);
+      this.reset();
+      alert('Perpanjangan tersimpan!');
+    });
+  }
+
+  // Label generate
+  const formLabel = document.getElementById('form-cetak-label');
+  if (formLabel) {
+    formLabel.addEventListener('submit', generateLabel);
+  }
+
+  // Barcode buku generate (ke area barcodeArea)
+  const formBarcodeBuku = document.getElementById('form-barcode-buku');
+  if (formBarcodeBuku) {
+    formBarcodeBuku.addEventListener('submit', generateBarcode);
+  }
+
+  // Kartu anggota generate
+  const formKartu = document.getElementById('form-kartu');
+  if (formKartu) {
+    formKartu.addEventListener('submit', generateCardBarcode);
+  }
+
+}); // DOMContentLoaded end
+
+// ---------- Barcode / Label functions ----------
+function generateBarcode(e) {
+  e.preventDefault();
+  const kode = document.getElementById('kodeBarcode').value;
+  if (!kode) { alert('Masukkan kode buku'); return; }
+  document.getElementById('barcodeArea').innerHTML = `<svg id="barcodeSVG"></svg>`;
+  JsBarcode("#barcodeSVG", kode, { format: "CODE128", width: 2, height: 60, displayValue: true });
+}
+
+function generateCardBarcode(e) {
+  e.preventDefault();
+  const kode = document.getElementById('kodeAnggota').value;
+  if (!kode) { alert('Masukkan ID anggota'); return; }
+  document.getElementById('cardArea').classList.remove('hidden');
+  document.getElementById('idAnggota').innerText = "ID: " + kode;
+  const members = load(STORAGE_KEYS.members);
+  const m = members.find(x => x.id === kode);
+  document.getElementById('namaAnggota').innerText = "Nama: " + (m ? m.nama : '(data tidak ditemukan)');
+  document.getElementById('barcodeCard').innerHTML = `<svg id="barcodeAnggotaSVG"></svg>`;
+  JsBarcode("#barcodeAnggotaSVG", kode, { format: "CODE128", width: 2, height: 40, displayValue: true });
+}
+
+function generateLabel(e) {
+  e.preventDefault();
+  const kode = document.getElementById('labelKode').value;
+  if (!kode) { alert('Masukkan kode buku'); return; }
+  // sederhana: buat area text + barcode
+  document.getElementById('labelArea').innerHTML = `<div class="p-2 bg-white inline-block border">
+    <div class="font-bold">${kode}</div>
+    <div id="labelBarcode"><svg id="labelBarcodeSVG"></svg></div>
+  </div>`;
+  JsBarcode("#labelBarcodeSVG", kode, { format: "CODE128", width: 1.5, height: 40, displayValue: false });
+}
+
+// ---------- Import / Export (CSV & XLSX) ----------
+function exportDataToFile(entityKey, filenamePrefix) {
+  const data = load(STORAGE_KEYS[entityKey]);
+  if (!data || data.length === 0) { alert('Data kosong.'); return; }
+  const csv = toCSV(data);
+  download(filenamePrefix + '.csv', csv, 'text/csv');
+}
+
+function exportDataToXLSX(entityKey, filename='export.xlsx') {
+  const data = load(STORAGE_KEYS[entityKey]);
+  if (!data || data.length === 0) { alert('Data kosong.'); return; }
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+  XLSX.writeFile(wb, filename);
+}
+
+// import from file input id to corresponding storage key
+function importDataFromFile(entityKey, inputElementId) {
+  const input = document.getElementById(inputElementId);
+  if (!input || !input.files || input.files.length === 0) {
+    alert('Pilih file terlebih dahulu.');
+    return;
+  }
+  const file = input.files[0];
+  const reader = new FileReader();
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+
+  reader.onload = function(e) {
+    const content = e.target.result;
+    if (ext === 'csv') {
+      const arr = parseCSV(content);
+      const existing = load(STORAGE_KEYS[entityKey]);
+      const merged = existing.concat(arr);
+      save(STORAGE_KEYS[entityKey], merged);
+      alert('Import CSV berhasil: ' + arr.length + ' baris.');
+      renderAll();
+    } else if (ext === 'xlsx' || ext === 'xls') {
+      const data = new Uint8Array(content);
+      const workbook = XLSX.read(data, {type: 'array'});
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      const json = XLSX.utils.sheet_to_json(firstSheet, {defval: ''});
+      const existing = load(STORAGE_KEYS[entityKey]);
+      const merged = existing.concat(json);
+      save(STORAGE_KEYS[entityKey], merged);
+      alert('Import XLSX berhasil: ' + json.length + ' baris.');
+      renderAll();
+    } else {
+      alert('Format file tidak dikenali. Gunakan CSV atau XLSX.');
+    }
+    input.value = '';
+  };
+
+  if (ext === 'csv') {
+    reader.readAsText(file);
+  } else {
+    reader.readAsArrayBuffer(file);
+  }
+}
+
+// ---------- Charts ----------
+let chartInstance = null;
+function updateCharts() {
+  const ctx = document.getElementById('chartPeminjaman');
+  if (!ctx) return;
+  const loans = load(STORAGE_KEYS.loans);
+  // simple monthly counts last 6 months (demo): just use count distribution
+  const months = ['Mei','Jun','Jul','Agu','Sep','Okt'];
+  const data = months.map((m,i) => {
+    // naive: distribute by index to get sample numbers (or real data if tglPinjam parsed)
+    return loans.filter((_, idx) => idx % 6 === i).length * 10 + 10;
+  });
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [{ label: 'Jumlah Peminjaman', data, backgroundColor: 'rgba(79,70,229,0.7)' }]
+    },
+    options: { responsive: true, plugins: { legend: { display: false }}}
+  });
+}
+
+// initial call to chart on load:
+document.addEventListener('DOMContentLoaded', () => {
+  updateCharts();
+});
+
