@@ -1,6 +1,6 @@
 # Library-For-School
 
-**Library-For-School** is a web application designed to manage a school library. This application helps teachers, students, and library staff efficiently manage books, members, borrowing, returns, reports, and more.
+**Library-For-School** is a web application designed to manage a school library. This application helps teachers, students, and library staff efficiently manage books, members, borrowing, returns, reports, and more.(Just use the browser)
 
 ## Features
 
