@@ -35,7 +35,6 @@
 - Chart.js for data visualization
 - JsBarcode for generating book barcodes
 
-## Installation
 
 
 
