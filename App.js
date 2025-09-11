@@ -95,15 +95,35 @@ function renderBooks() {
   arr.forEach(item => {
     const tr = document.createElement('tr');
     tr.className = 'border-b';
-    tr.innerHTML = `<td class="p-2">${item.kode||''}</td>
-                    <td class="p-2">${item.judul||''}</td>
-                    <td class="p-2">${item.pengarang||''}</td>
-                    <td class="p-2">${item.tahun||''}</td>
-                    <td class="p-2">${item.rak||''}</td>`;
+    tr.innerHTML = `
+      <td class="p-2">${item.kode||''}</td>
+      <td class="p-2">${item.judul||''}</td>
+      <td class="p-2">${item.pengarang||''}</td>
+      <td class="p-2">${item.penerjemah||''}</td>
+      <td class="p-2">${item.penerbit||''}</td>
+      <td class="p-2">${item.tahun||''}</td>
+      <td class="p-2">${item.tempat||''}</td>
+      <td class="p-2">${item.edisi||''}</td>
+      <td class="p-2">${item.kategori||''}</td>
+      <td class="p-2">${item.isbn||''}</td>
+      <td class="p-2">${item.ddc||''}</td>
+      <td class="p-2">${item.halaman||''}</td>
+      <td class="p-2">${item.ukuran||''}</td>
+      <td class="p-2">${item.kataKunci||''}</td>
+      <td class="p-2">${item.sumber||''}</td>
+      <td class="p-2">${item.jumlah||''}</td>
+      <td class="p-2">${item.tglMasuk||''}</td>
+      <td class="p-2">${item.noInventaris||''}</td>
+      <td class="p-2">${item.rak||''}</td>
+      <td class="p-2">${item.asal||''}</td>
+      <td class="p-2">${item.keterangan||''}</td>
+      <td class="p-2">${item.harga||''}</td>
+    `;
     tb.appendChild(tr);
   });
   document.getElementById('stat-total-buku').innerText = arr.length;
 }
+
 
 function renderMembers() {
   const tb = document.getElementById('tbody-members');
@@ -114,13 +134,16 @@ function renderMembers() {
     tr.className = 'border-b';
     tr.innerHTML = `<td class="p-2">${item.id||''}</td>
                     <td class="p-2">${item.nama||''}</td>
+                    <td class="p-2">${item.kelamin||''}</td>
                     <td class="p-2">${item.kelas||''}</td>
+                    <td class="p-2">${item.alamat||''}</td>
                     <td class="p-2">${item.hp||''}</td>
                     <td class="p-2">${item.status||''}</td>`;
     tb.appendChild(tr);
   });
   document.getElementById('stat-total-anggota').innerText = arr.length;
 }
+
 
 function renderLoans() {
   const tb = document.getElementById('tbody-loans');
@@ -129,14 +152,22 @@ function renderLoans() {
   arr.forEach(item => {
     const tr = document.createElement('tr');
     tr.className = 'border-b';
-    tr.innerHTML = `<td class="p-2">${item.id||''}</td>
-                    <td class="p-2">${item.idAnggota||''}</td>
-                    <td class="p-2">${item.kodeBuku||''}</td>
-                    <td class="p-2">${item.tglPinjam||''}</td>`;
+    tr.innerHTML = `
+      <td class="p-2">${item.id || ''}</td>
+      <td class="p-2">${item.idAnggota || ''}</td>
+      <td class="p-2">${item.kodeBuku || ''}</td>
+      <td class="p-2">${item.tglPinjam || ''}</td>
+      <td class="p-2">${item.tglKembali || ''}</td>
+    `;
     tb.appendChild(tr);
   });
-  document.getElementById('stat-total-peminjaman').innerText = arr.length;
+
+  // update statistik (kalau ada)
+  if (document.getElementById('stat-total-peminjaman')) {
+    document.getElementById('stat-total-peminjaman').innerText = arr.length;
+  }
 }
+
 
 function renderReturns() {
   const tb = document.getElementById('tbody-returns');
@@ -177,31 +208,6 @@ function renderHistory() {
 
 // laporan renderers
 function renderReports() {
-  // laporan peminjaman
-  const rptP = document.getElementById('tbody-laporan-peminjaman');
-  rptP.innerHTML = '';
-  load(STORAGE_KEYS.loans).forEach((l, idx) => {
-    const tr = document.createElement('tr'); tr.className='border';
-    tr.innerHTML = `<td class="p-2">${idx+1}</td>
-                    <td class="p-2">${l.id||''}</td>
-                    <td class="p-2">${l.idAnggota||''}</td>
-                    <td class="p-2">${l.kodeBuku||''}</td>
-                    <td class="p-2">${l.tglPinjam||''}</td>`;
-    rptP.appendChild(tr);
-  });
-
-  // laporan returns
-  const rptR = document.getElementById('tbody-laporan-returns'); rptR.innerHTML='';
-  load(STORAGE_KEYS.returns).forEach((r, idx) => {
-    const tr = document.createElement('tr'); tr.className='border';
-    tr.innerHTML = `<td class="p-2">${idx+1}</td>
-                    <td class="p-2">${r.id||''}</td>
-                    <td class="p-2">${r.idPinjam||''}</td>
-                    <td class="p-2">${r.tglKembali||''}</td>
-                    <td class="p-2">${r.denda ? 'Rp ' + r.denda : 'Rp 0'}</td>`;
-    rptR.appendChild(tr);
-  });
-
   // laporan denda
   const rptD = document.getElementById('tbody-laporan-denda'); rptD.innerHTML='';
   load(STORAGE_KEYS.returns).forEach((r, idx) => {
@@ -249,21 +255,22 @@ document.addEventListener('DOMContentLoaded', function() {
   renderAll();
 
   // Books form
-  const formBuku = document.getElementById('form-buku');
-  if (formBuku) {
-    formBuku.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const data = new FormData(this);
-      const obj = {};
-      for (const [k,v] of data.entries()) obj[k]=v;
-      const arr = load(STORAGE_KEYS.books);
-      arr.push(obj);
-      save(STORAGE_KEYS.books, arr);
-      this.reset();
-      renderBooks(); updateCharts();
-      alert('Buku tersimpan!');
-    });
-  }
+// Books form
+const formBuku = document.getElementById('form-buku');
+if (formBuku) {
+  formBuku.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const data = new FormData(this);
+    const obj = {};
+    for (const [k,v] of data.entries()) obj[k]=v;
+    const arr = load(STORAGE_KEYS.books);
+    arr.push(obj);
+    save(STORAGE_KEYS.books, arr);
+    this.reset();
+    renderBooks(); updateCharts();
+    alert('Buku tersimpan!');
+  });
+}
 
   // Members form
   const formMember = document.getElementById('form-member');
@@ -282,22 +289,33 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Loans (peminjaman)
-  const formLoan = document.getElementById('form-loan');
-  if (formLoan) {
-    formLoan.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const data = new FormData(this);
-      const obj = {};
-      for (const [k,v] of data.entries()) obj[k]=v;
-      const arr = load(STORAGE_KEYS.loans);
-      arr.push(obj);
-      save(STORAGE_KEYS.loans, arr);
-      this.reset();
-      renderLoans(); renderHistory(); renderReports(); updateCharts();
-      alert('Peminjaman tersimpan!');
-    });
-  }
+// ---------- Form Peminjaman ----------
+const formLoan = document.getElementById("form-loan");
+if (formLoan) {
+  formLoan.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const data = new FormData(this);
+    const obj = {};
+    for (const [k, v] of data.entries()) obj[k] = v;
+
+    let arr = load(STORAGE_KEYS.loans);
+    if (!Array.isArray(arr)) arr = [];
+
+    arr.push(obj);
+    save(STORAGE_KEYS.loans, arr);
+
+    this.reset();
+    renderLoans();
+    renderHistory();
+    renderReports();
+    updateCharts();
+
+    alert("? Peminjaman tersimpan!");
+  });
+}
+
+
 
   // Returns (pengembalian)
   const formReturn = document.getElementById('form-return');
@@ -375,32 +393,167 @@ function generateBarcode(e) {
   if (!kode) { alert('Masukkan kode buku'); return; }
   document.getElementById('barcodeArea').innerHTML = `<svg id="barcodeSVG"></svg>`;
   JsBarcode("#barcodeSVG", kode, { format: "CODE128", width: 2, height: 60, displayValue: true });
+  document.getElementById("btnPrintBarcode").classList.remove("hidden"); // tampilkan tombol print
+  document.getElementById("btnCopyBarcode").classList.remove("hidden");
+}
+
+function printBarcode() {
+  const printContent = document.getElementById("barcodeArea").innerHTML;
+  const win = window.open('', '', 'width=600,height=400');
+  win.document.write(printContent);
+  win.document.close();
+  win.print();
 }
 
 function generateCardBarcode(e) {
   e.preventDefault();
   const kode = document.getElementById('kodeAnggota').value;
-  if (!kode) { alert('Masukkan ID anggota'); return; }
+  if (!kode) { 
+    alert('Masukkan ID anggota'); 
+    return; 
+  }
+
   document.getElementById('cardArea').classList.remove('hidden');
   document.getElementById('idAnggota').innerText = "ID: " + kode;
+
   const members = load(STORAGE_KEYS.members);
   const m = members.find(x => x.id === kode);
   document.getElementById('namaAnggota').innerText = "Nama: " + (m ? m.nama : '(data tidak ditemukan)');
+
   document.getElementById('barcodeCard').innerHTML = `<svg id="barcodeAnggotaSVG"></svg>`;
   JsBarcode("#barcodeAnggotaSVG", kode, { format: "CODE128", width: 2, height: 40, displayValue: true });
+
+  // tampilkan tombol print & salin
+  document.getElementById("btnPrintCard").classList.remove("hidden");
+  document.getElementById("btnCopyCard").classList.remove("hidden");
+}
+
+
+function printCard() {
+  const printContent = document.getElementById("cardArea").innerHTML;
+  const win = window.open('', '', 'width=600,height=400');
+  win.document.write(printContent);
+  win.document.close();
+  win.print();
 }
 
 function generateLabel(e) {
   e.preventDefault();
   const kode = document.getElementById('labelKode').value;
-  if (!kode) { alert('Masukkan kode buku'); return; }
-  // sederhana: buat area text + barcode
-  document.getElementById('labelArea').innerHTML = `<div class="p-2 bg-white inline-block border">
-    <div class="font-bold">${kode}</div>
-    <div id="labelBarcode"><svg id="labelBarcodeSVG"></svg></div>
-  </div>`;
-  JsBarcode("#labelBarcodeSVG", kode, { format: "CODE128", width: 1.5, height: 40, displayValue: false });
+  if (!kode) { 
+    alert('Masukkan kode buku'); 
+    return; 
+  }
+
+  // ambil data buku dari localStorage
+  const books = load(STORAGE_KEYS.books);
+  const book = books.find(b => b.kode === kode);
+
+  // isi label lengkap dengan teks lebih besar & rata tengah
+  document.getElementById('labelArea').innerHTML = `
+    <div style="width:90mm; height:60mm; border:2px solid black; border-radius:6px; 
+                padding:6px; font-family:Arial, sans-serif; 
+                display:flex; flex-direction:column; justify-content:center; align-items:center;">
+
+      <div style="font-size:18px; font-weight:bold; margin-bottom:6px; text-align:center;">
+        Perpustakaan SD Negeri 12 Padang Lua
+      </div>
+
+      <div style="font-size:15px; line-height:1.4; text-align:center; width:95%;">
+        <div><b>Kode:</b> ${book ? book.kode : kode}</div>
+        <div><b>Judul:</b> ${book ? (book.judul || '-') : '-'}</div>
+        <div><b>Pengarang:</b> ${book ? (book.pengarang || '-') : '-'}</div>
+        <div><b>Rak:</b> ${book ? (book.rak || '-') : '-'}</div>
+        <div><b>Kategori:</b> ${book ? (book.kategori || '-') : '-'}</div>
+      </div>
+    </div>
+  `;
+
+  // tampilkan tombol print & copy
+  if (document.getElementById("btnPrintLabel")) {
+    document.getElementById("btnPrintLabel").classList.remove("hidden");
+  }
+  if (document.getElementById("btnCopyLabel")) {
+    document.getElementById("btnCopyLabel").classList.remove("hidden");
+  }
 }
+
+
+
+function printLabel() {
+  const printContent = document.getElementById("labelArea").innerHTML;
+  const win = window.open('', '', 'width=600,height=400');
+  win.document.write(printContent);
+  win.document.close();
+  win.print();
+}
+
+// --- Copy & Print Label ---
+function printLabel() {
+  const content = document.getElementById("labelArea").innerHTML;
+  const win = window.open("", "", "width=600,height=400");
+  win.document.write(`<html><head><title>Print Label</title></head><body>${content}</body></html>`);
+  win.document.close();
+  win.print();
+}
+
+function copyLabel() {
+  const node = document.getElementById("labelArea");
+  html2canvas(node).then(canvas => {
+    canvas.toBlob(blob => {
+      const item = new ClipboardItem({ "image/png": blob });
+      navigator.clipboard.write([item])
+        .then(() => alert("Label berhasil disalin ke clipboard sebagai gambar!"))
+        .catch(err => alert("Gagal menyalin label: " + err));
+    });
+  });
+}
+
+// --- Copy & Print Barcode ---
+function printBarcode() {
+  const content = document.getElementById("barcodeArea").innerHTML;
+  const win = window.open("", "", "width=600,height=400");
+  win.document.write(`<html><head><title>Print Barcode</title></head><body>${content}</body></html>`);
+  win.document.close();
+  win.print();
+}
+
+function copyBarcode() {
+  const node = document.getElementById("barcodeArea");
+  html2canvas(node).then(canvas => {
+    canvas.toBlob(blob => {
+      const item = new ClipboardItem({ "image/png": blob });
+      navigator.clipboard.write([item])
+        .then(() => alert("Barcode berhasil disalin ke clipboard sebagai gambar!"))
+        .catch(err => alert("Gagal menyalin barcode: " + err));
+    });
+  });
+}
+
+function printCard() {
+  const area = document.getElementById("cardArea");
+  const w = window.open("");
+  w.document.write(area.outerHTML);
+  w.document.close();   // penting biar bisa print
+  w.print();
+  w.close();
+}
+
+function copyCard() {
+  const area = document.getElementById("cardArea");
+  html2canvas(area).then(canvas => {
+    canvas.toBlob(blob => {
+      const item = new ClipboardItem({ "image/png": blob });
+      navigator.clipboard.write([item]).then(() => {
+        alert("Kartu anggota berhasil disalin ke clipboard!");
+      }).catch(err => {
+        alert("Browser kamu tidak mendukung salin gambar ke clipboard.");
+        console.error(err);
+      });
+    });
+  });
+}
+
 
 // ---------- Import / Export (CSV & XLSX) ----------
 function exportDataToFile(entityKey, filenamePrefix) {
@@ -489,4 +642,73 @@ function updateCharts() {
 document.addEventListener('DOMContentLoaded', () => {
   updateCharts();
 });
+
+// ---------- Hapus Semua Data ----------
+
+// Hapus semua buku
+function hapusSemuaBuku() {
+  if (confirm("Apakah Anda yakin ingin menghapus semua data buku?")) {
+    save(STORAGE_KEYS.books, []);
+    renderBooks(); updateCharts();
+    alert("Semua data buku berhasil dihapus!");
+  }
+}
+
+// Hapus semua anggota
+function hapusSemuaAnggota() {
+  if (confirm("Apakah Anda yakin ingin menghapus semua data anggota?")) {
+    save(STORAGE_KEYS.members, []);
+    renderMembers(); updateCharts();
+    alert("Semua data anggota berhasil dihapus!");
+  }
+}
+
+// Hapus semua peminjaman
+function hapusSemuaPeminjaman() {
+  if (confirm("Apakah Anda yakin ingin menghapus semua data peminjaman?")) {
+    save(STORAGE_KEYS.loans, []);
+    renderLoans(); renderHistory(); renderReports(); updateCharts();
+    alert("Semua data peminjaman berhasil dihapus!");
+  }
+}
+
+// Hapus semua pengembalian
+function hapusSemuaPengembalian() {
+  if (confirm("Apakah Anda yakin ingin menghapus semua data pengembalian?")) {
+    save(STORAGE_KEYS.returns, []);
+    renderReturns(); renderHistory(); renderReports(); updateCharts();
+    alert("Semua data pengembalian berhasil dihapus!");
+  }
+}
+
+// Hapus semua reservasi
+function hapusSemuaReservasi() {
+  if (confirm("Apakah Anda yakin ingin menghapus semua data reservasi?")) {
+    save(STORAGE_KEYS.reservations, []);
+    alert("Semua data reservasi berhasil dihapus!");
+  }
+}
+
+// Hapus semua perpanjangan
+function hapusSemuaPerpanjangan() {
+  if (confirm("Apakah Anda yakin ingin menghapus semua data perpanjangan?")) {
+    save(STORAGE_KEYS.extensions, []);
+    alert("Semua data perpanjangan berhasil dihapus!");
+  }
+}
+
+// Hapus semua riwayat (gabungan loans + returns)
+function hapusSemuaRiwayat() {
+  if (confirm("Apakah Anda yakin ingin menghapus semua data riwayat (peminjaman & pengembalian)?")) {
+    save(STORAGE_KEYS.loans, []);
+    save(STORAGE_KEYS.returns, []);
+    renderHistory(); renderReports(); updateCharts();
+    alert("Semua data riwayat berhasil dihapus!");
+  }
+}
+
+
+
+
+
 
