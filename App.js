@@ -91,36 +91,46 @@ function showPage(page) {
 function renderBooks() {
   const tb = document.getElementById('tbody-books');
   const arr = load(STORAGE_KEYS.books);
+
+  const q = (document.getElementById('searchBuku')?.value || '').toLowerCase();
+
+  const filtered = arr.filter(item =>
+    String(item.kode || '').toLowerCase().includes(q) ||
+    String(item.judul || '').toLowerCase().includes(q)
+  );
+
   tb.innerHTML = '';
-  arr.forEach(item => {
+  filtered.forEach((item, idx) => {
     const tr = document.createElement('tr');
     tr.className = 'border-b';
     tr.innerHTML = `
-      <td class="p-2">${item.kode||''}</td>
-      <td class="p-2">${item.judul||''}</td>
-      <td class="p-2">${item.pengarang||''}</td>
-      <td class="p-2">${item.penerjemah||''}</td>
-      <td class="p-2">${item.penerbit||''}</td>
-      <td class="p-2">${item.tahun||''}</td>
-      <td class="p-2">${item.tempat||''}</td>
-      <td class="p-2">${item.edisi||''}</td>
-      <td class="p-2">${item.kategori||''}</td>
-      <td class="p-2">${item.isbn||''}</td>
-      <td class="p-2">${item.ddc||''}</td>
-      <td class="p-2">${item.halaman||''}</td>
-      <td class="p-2">${item.ukuran||''}</td>
-      <td class="p-2">${item.kataKunci||''}</td>
-      <td class="p-2">${item.sumber||''}</td>
-      <td class="p-2">${item.jumlah||''}</td>
-      <td class="p-2">${item.tglMasuk||''}</td>
-      <td class="p-2">${item.noInventaris||''}</td>
-      <td class="p-2">${item.rak||''}</td>
-      <td class="p-2">${item.asal||''}</td>
-      <td class="p-2">${item.keterangan||''}</td>
-      <td class="p-2">${item.harga||''}</td>
+      <td class="p-2">${idx + 1}</td>
+      <td class="p-2">${item.kode || ''}</td>
+      <td class="p-2">${item.judul || ''}</td>
+      <td class="p-2">${item.pengarang || ''}</td>
+      <td class="p-2">${item.penerjemah || ''}</td>
+      <td class="p-2">${item.penerbit || ''}</td>
+      <td class="p-2">${item.tahun || ''}</td>
+      <td class="p-2">${item.tempat || ''}</td>
+      <td class="p-2">${item.edisi || ''}</td>
+      <td class="p-2">${item.kategori || ''}</td>
+      <td class="p-2">${item.isbn || ''}</td>
+      <td class="p-2">${item.ddc || ''}</td>
+      <td class="p-2">${item.halaman || ''}</td>
+      <td class="p-2">${item.ukuran || ''}</td>
+      <td class="p-2">${item.kataKunci || ''}</td>
+      <td class="p-2">${item.sumber || ''}</td>
+      <td class="p-2">${item.jumlah || ''}</td>
+      <td class="p-2">${item.tglMasuk || ''}</td>
+      <td class="p-2">${item.noInventaris || ''}</td>
+      <td class="p-2">${item.rak || ''}</td>
+      <td class="p-2">${item.asal || ''}</td>
+      <td class="p-2">${item.keterangan || ''}</td>
+      <td class="p-2">${item.harga || ''}</td>
     `;
     tb.appendChild(tr);
   });
+
   document.getElementById('stat-total-buku').innerText = arr.length;
 }
 
@@ -128,21 +138,35 @@ function renderBooks() {
 function renderMembers() {
   const tb = document.getElementById('tbody-members');
   const arr = load(STORAGE_KEYS.members);
+
+  const q = (document.getElementById('searchAnggota')?.value || '').toLowerCase();
+
+  // ✅ pastikan nilai dikonversi ke string dulu
+  const filtered = arr.filter(item =>
+    String(item.id || '').toLowerCase().includes(q) ||
+    String(item.nama || '').toLowerCase().includes(q)
+  );
+
   tb.innerHTML = '';
-  arr.forEach(item => {
+  filtered.forEach((item, idx) => {
     const tr = document.createElement('tr');
     tr.className = 'border-b';
-    tr.innerHTML = `<td class="p-2">${item.id||''}</td>
-                    <td class="p-2">${item.nama||''}</td>
-                    <td class="p-2">${item.kelamin||''}</td>
-                    <td class="p-2">${item.kelas||''}</td>
-                    <td class="p-2">${item.alamat||''}</td>
-                    <td class="p-2">${item.hp||''}</td>
-                    <td class="p-2">${item.status||''}</td>`;
+    tr.innerHTML = `
+      <td class="p-2">${idx + 1}</td>
+      <td class="p-2">${item.id || ''}</td>
+      <td class="p-2">${item.nama || ''}</td>
+      <td class="p-2">${item.kelamin || ''}</td>
+      <td class="p-2">${item.kelas || ''}</td>
+      <td class="p-2">${item.alamat || ''}</td>
+      <td class="p-2">${item.hp || ''}</td>
+      <td class="p-2">${item.status || ''}</td>
+    `;
     tb.appendChild(tr);
   });
+
   document.getElementById('stat-total-anggota').innerText = arr.length;
 }
+
 
 
 function renderLoans() {
@@ -706,7 +730,6 @@ function hapusSemuaRiwayat() {
     alert("Semua data riwayat berhasil dihapus!");
   }
 }
-
 
 
 
