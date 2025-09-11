@@ -6,8 +6,7 @@ const STORAGE_KEYS = {
   members: 'app_members',
   loans: 'app_loans',
   returns: 'app_returns',
-  reservations: 'app_reservations',
-  extensions: 'app_extensions'
+  shelves: 'app_shelves'   // baris terakhir tidak boleh pakai koma
 };
 
 function save(key, data) {
@@ -67,16 +66,22 @@ function parseCSV(text) {
 function toggleSidebar() {
   document.getElementById('sidebar').classList.toggle('-translate-x-64');
 }
+
 function toggleMenu(id) {
   const menu = document.getElementById(id);
   const icon = document.getElementById('icon-' + id);
   if (!menu) return;
   if (menu.classList.contains('max-h-0')) {
-    menu.classList.remove('max-h-0'); menu.classList.add('max-h-96'); if (icon) icon.classList.add('rotate-180');
+    menu.classList.remove('max-h-0');
+    menu.classList.add('max-h-96');
+    if (icon) icon.classList.add('rotate-180');
   } else {
-    menu.classList.remove('max-h-96'); menu.classList.add('max-h-0'); if (icon) icon.classList.remove('rotate-180');
+    menu.classList.remove('max-h-96');
+    menu.classList.add('max-h-0');
+    if (icon) icon.classList.remove('rotate-180');
   }
 }
+
 
 // showPage keeps old behavior: show element with id="page-" + page
 function showPage(page) {
@@ -160,6 +165,10 @@ function renderMembers() {
       <td class="p-2">${item.alamat || ''}</td>
       <td class="p-2">${item.hp || ''}</td>
       <td class="p-2">${item.status || ''}</td>
+      <td class="p-2">
+      <button onclick="editAnggota('${item.id}')" class="text-blue-600">Edit</button>
+      <button onclick="hapusAnggota('${item.id}')" class="text-red-600 ml-2">Hapus</button>
+      </td>
     `;
     tb.appendChild(tr);
   });
@@ -273,12 +282,58 @@ function renderAll() {
   updateCharts();
 }
 
+function renderKlasifikasi() {
+  const tb = document.getElementById('tbody-klasifikasi');
+  const arr = load(STORAGE_KEYS.shelves);
+  tb.innerHTML = '';
+  arr.forEach((item, idx) => {
+    const tr = document.createElement('tr');
+    tr.className = 'border-b';
+    tr.innerHTML = `
+      <td class="p-2">${idx + 1}</td>
+      <td class="p-2">${item.kode || ''}</td>
+      <td class="p-2">${item.nama || ''}</td>
+      <td class="p-2">
+        <button onclick="editRak('${item.kode}')" class="text-blue-600">Edit</button>
+        <button onclick="hapusRak('${item.kode}')" class="text-red-600 ml-2">Hapus</button>
+      </td>
+    `;
+    tb.appendChild(tr);
+  });
+}
+
+function hapusSemuaRak() {
+  if (confirm("Yakin ingin menghapus semua rak?")) {
+    save(STORAGE_KEYS.shelves, []);
+    renderKlasifikasi();
+  }
+}
+
+function hapusRak(kode) {
+  let arr = load(STORAGE_KEYS.shelves);
+  arr = arr.filter(r => r.kode !== kode);
+  save(STORAGE_KEYS.shelves, arr);
+  renderKlasifikasi();
+}
+
+function editRak(kode) {
+  let arr = load(STORAGE_KEYS.shelves);
+  const index = arr.findIndex(r => r.kode === kode);
+  if (index === -1) return;
+  const rak = arr[index];
+  const namaBaru = prompt("Ubah Nama Rak:", rak.nama || "");
+  if (namaBaru === null) return;
+  arr[index].nama = namaBaru;
+  save(STORAGE_KEYS.shelves, arr);
+  renderKlasifikasi();
+}
+
+
 // ---------- Form Handlers ----------
 document.addEventListener('DOMContentLoaded', function() {
   // initial render
   renderAll();
 
-  // Books form
 // Books form
 const formBuku = document.getElementById('form-buku');
 if (formBuku) {
@@ -441,7 +496,7 @@ function generateCardBarcode(e) {
   document.getElementById('idAnggota').innerText = "ID: " + kode;
 
   const members = load(STORAGE_KEYS.members);
-  const m = members.find(x => x.id === kode);
+  const m = members.find(x => String(x.id).trim() === String(kode).trim());
   document.getElementById('namaAnggota').innerText = "Nama: " + (m ? m.nama : '(data tidak ditemukan)');
 
   document.getElementById('barcodeCard').innerHTML = `<svg id="barcodeAnggotaSVG"></svg>`;
@@ -678,14 +733,68 @@ function hapusSemuaBuku() {
   }
 }
 
+function hapusBuku(kode) {
+  if (confirm("Yakin ingin menghapus buku dengan kode " + kode + "?")) {
+    let arr = load(STORAGE_KEYS.books);
+    arr = arr.filter(b => b.kode !== kode);
+    save(STORAGE_KEYS.books, arr);
+    renderBooks();
+    alert("Buku berhasil dihapus!");
+  }
+}
+
+function editBuku(kode) {
+  let arr = load(STORAGE_KEYS.books);
+  const index = arr.findIndex(b => b.kode === kode);
+  if (index === -1) return;
+
+  const buku = arr[index];
+  const judulBaru = prompt("Ubah Judul Buku:", buku.judul || "");
+  if (judulBaru === null) return;
+
+  arr[index].judul = judulBaru;
+  save(STORAGE_KEYS.books, arr);
+  renderBooks();
+  alert("Buku berhasil diperbarui!");
+}
+
+
 // Hapus semua anggota
-function hapusSemuaAnggota() {
-  if (confirm("Apakah Anda yakin ingin menghapus semua data anggota?")) {
-    save(STORAGE_KEYS.members, []);
-    renderMembers(); updateCharts();
+function hapusAnggota(id) {
+  if (confirm("Yakin ingin menghapus anggota dengan ID " + id + "?")) {
+    let arr = load(STORAGE_KEYS.members);
+    arr = arr.filter(m => m.id !== id);
+    save(STORAGE_KEYS.members, arr);
+    renderMembers();
     alert("Semua data anggota berhasil dihapus!");
   }
 }
+
+function hapusAnggota(id) {
+  if (confirm("Yakin ingin menghapus anggota dengan ID " + id + "?")) {
+    let arr = load(STORAGE_KEYS.members);
+    arr = arr.filter(m => m.id !== id);
+    save(STORAGE_KEYS.members, arr);
+    renderMembers();
+    alert("Anggota berhasil dihapus!");
+  }
+}
+
+function editAnggota(id) {
+  let arr = load(STORAGE_KEYS.members);
+  const index = arr.findIndex(m => m.id === id);
+  if (index === -1) return;
+
+  const anggota = arr[index];
+  const namaBaru = prompt("Ubah Nama Anggota:", anggota.nama || "");
+  if (namaBaru === null) return;
+
+  arr[index].nama = namaBaru;
+  save(STORAGE_KEYS.members, arr);
+  renderMembers();
+  alert("Anggota berhasil diperbarui!");
+}
+
 
 // Hapus semua peminjaman
 function hapusSemuaPeminjaman() {
@@ -695,6 +804,8 @@ function hapusSemuaPeminjaman() {
     alert("Semua data peminjaman berhasil dihapus!");
   }
 }
+
+
 
 // Hapus semua pengembalian
 function hapusSemuaPengembalian() {
