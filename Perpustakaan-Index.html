@@ -223,52 +223,55 @@
 
 
     <!-- Daftar Buku -->
-    <section id="page-daftarBuku" class="hidden">
-      <h2 class="text-xl font-bold mb-4"><i class="fas fa-book"></i> Daftar Buku</h2>
-      <div class="flex gap-2 mb-3">
-        <input id="importBukuFile" type="file" accept=".csv, .xlsx" />
-        <button onclick="importDataFromFile('books', 'importBukuFile')" 
-                class="bg-yellow-500 px-3 py-1 rounded">Import</button>
-        <button onclick="exportDataToFile('books', 'books_export')" 
-                class="bg-blue-500 px-3 py-1 rounded text-white">Export CSV</button>
-        <button onclick="exportDataToXLSX('books', 'books_export.xlsx')" 
-                class="bg-green-600 px-3 py-1 rounded text-white">Export XLSX</button>
-        <!-- ?? Tombol hapus semua buku -->
-        <button onclick="hapusSemuaBuku()" 
-                class="bg-red-600 px-3 py-1 rounded text-white">Hapus Semua</button>
-      </div>
-      <table class="w-full bg-white shadow-md rounded-lg overflow-hidden">
-        <thead class="bg-indigo-900 text-white">
-          <tr>
-          <th class="p-2">Kode Buku</th>
-          <th class="p-2">Judul Buku</th>
-          <th class="p-2">Pengarang</th>
-          <th class="p-2">Penerjemah</th>
-          <th class="p-2">Penerbit</th>
-          <th class="p-2">Tahun Terbit</th>
-          <th class="p-2">Tempat Terbit</th>
-          <th class="p-2">Edisi</th>
-          <th class="p-2">Kategori</th>
-          <th class="p-2">ISBN</th>
-          <th class="p-2">DDC</th>
-          <th class="p-2">Halaman</th>
-          <th class="p-2">Ukuran</th>
-          <th class="p-2">Sumber</th>
-          <th class="p-2">Jumlah</th>
-          <th class="p-2">Tanggal Masuk</th>
-          <th class="p-2">No. Inventaris</th>
-          <th class="p-2">Rak</th>
-          <th class="p-2">Asal Buku</th>
-          <th class="p-2">Keterangan</th>
-          <th class="p-2">Harga</th>
-          <th class="p-2">Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="tbody-books">
-          <!-- diisi via JS -->
-        </tbody>
-      </table>
-    </section>
+<section id="page-daftarBuku" class="hidden">
+  <h2 class="text-xl font-bold mb-4"><i class="fas fa-book"></i> Daftar Buku</h2>
+
+  <!-- 🔍 Pencarian Buku -->
+  <input id="searchBuku" type="text" placeholder="Cari kode / judul buku..." 
+         class="w-full p-2 border rounded mb-3" oninput="renderBooks()">
+
+  <div class="flex gap-2 mb-3">
+    <input id="importBukuFile" type="file" accept=".csv, .xlsx" />
+    <button onclick="importDataFromFile('books', 'importBukuFile')" 
+            class="bg-yellow-500 px-3 py-1 rounded">Import</button>
+    <button onclick="exportDataToFile('books', 'books_export')" 
+            class="bg-blue-500 px-3 py-1 rounded text-white">Export CSV</button>
+    <button onclick="exportDataToXLSX('books', 'books_export.xlsx')" 
+            class="bg-green-600 px-3 py-1 rounded text-white">Export XLSX</button>
+    <button onclick="hapusSemuaBuku()" 
+            class="bg-red-600 px-3 py-1 rounded text-white">Hapus Semua</button>
+  </div>
+
+  <table class="w-full bg-white shadow-md rounded-lg overflow-hidden">
+    <thead class="bg-indigo-900 text-white">
+      <tr>
+        <th class="p-2">No</th> <!-- ✅ Tambah kolom No -->
+        <th class="p-2">Kode Buku</th>
+        <th class="p-2">Judul Buku</th>
+        <th class="p-2">Pengarang</th>
+        <th class="p-2">Penerjemah</th>
+        <th class="p-2">Penerbit</th>
+        <th class="p-2">Tahun Terbit</th>
+        <th class="p-2">Tempat Terbit</th>
+        <th class="p-2">Edisi</th>
+        <th class="p-2">Kategori</th>
+        <th class="p-2">ISBN</th>
+        <th class="p-2">DDC</th>
+        <th class="p-2">Halaman</th>
+        <th class="p-2">Ukuran</th>
+        <th class="p-2">Sumber</th>
+        <th class="p-2">Jumlah</th>
+        <th class="p-2">Tanggal Masuk</th>
+        <th class="p-2">No. Inventaris</th>
+        <th class="p-2">Rak</th>
+        <th class="p-2">Asal Buku</th>
+        <th class="p-2">Keterangan</th>
+        <th class="p-2">Harga</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-books"></tbody>
+  </table>
+</section>
 
 <!-- Tambah Buku -->
 <section id="page-tambahBuku" class="hidden">
@@ -371,35 +374,43 @@
 
 
     <!-- Daftar Anggota -->
-    <section id="page-daftarAnggota" class="hidden">
-      <h2 class="text-xl font-bold mb-4"><i class="fas fa-users"></i> Daftar Anggota</h2>
-      <div class="flex gap-2 mb-3">
-        <input id="importAnggotaFile" type="file" accept=".csv, .xlsx" />
-        <button onclick="importDataFromFile('members', 'importAnggotaFile')" 
-                class="bg-yellow-500 px-3 py-1 rounded">Import</button>
-        <button onclick="exportDataToFile('members', 'members_export')" 
-                class="bg-blue-500 px-3 py-1 rounded text-white">Export CSV</button>
-        <button onclick="exportDataToXLSX('members', 'members_export.xlsx')" 
-                class="bg-green-600 px-3 py-1 rounded text-white">Export XLSX</button>
-        <!-- ?? Tombol hapus semua anggota -->
-        <button onclick="hapusSemuaAnggota()" 
-                class="bg-red-600 px-3 py-1 rounded text-white">Hapus Semua</button>
-      </div>
-      <table class="w-full bg-white shadow-md rounded-lg overflow-hidden">
-        <thead class="bg-indigo-900 text-white">
-          <tr>
-            <th class="p-2">ID Anggota</th>
-            <th class="p-2">Nama</th>
-	    <th class="p-2">Jenis Kelamin</th>
-            <th class="p-2">Kelas</th>
-	    <th class="p-2">Alamat</th>
-            <th class="p-2">No. HP</th>
-            <th class="p-2">Status</th>
-          </tr>
-        </thead>
-        <tbody id="tbody-members"></tbody>
-      </table>
-    </section>
+<section id="page-daftarAnggota" class="hidden">
+  <h2 class="text-xl font-bold mb-4"><i class="fas fa-users"></i> Daftar Anggota</h2>
+
+  <!-- 🔍 Pencarian Anggota -->
+  <input id="searchAnggota" type="text" placeholder="Cari ID / Nama anggota..." 
+         class="w-full p-2 border rounded mb-3" oninput="renderMembers()">
+
+  <div class="flex gap-2 mb-3">
+    <input id="importAnggotaFile" type="file" accept=".csv, .xlsx" />
+    <button onclick="importDataFromFile('members', 'importAnggotaFile')" 
+            class="bg-yellow-500 px-3 py-1 rounded">Import</button>
+    <button onclick="exportDataToFile('members', 'members_export')" 
+            class="bg-blue-500 px-3 py-1 rounded text-white">Export CSV</button>
+    <button onclick="exportDataToXLSX('members', 'members_export.xlsx')" 
+            class="bg-green-600 px-3 py-1 rounded text-white">Export XLSX</button>
+    <button onclick="hapusSemuaAnggota()" 
+            class="bg-red-600 px-3 py-1 rounded text-white">Hapus Semua</button>
+  </div>
+
+  <table class="w-full bg-white shadow-md rounded-lg overflow-hidden">
+    <thead class="bg-indigo-900 text-white">
+      <tr>
+        <th class="p-2">No</th> <!-- ✅ Tambah kolom No -->
+        <th class="p-2">ID Anggota</th>
+        <th class="p-2">Nama</th>
+        <th class="p-2">Jenis Kelamin</th>
+        <th class="p-2">Kelas</th>
+        <th class="p-2">Alamat</th>
+        <th class="p-2">No. HP</th>
+        <th class="p-2">Status</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-members"></tbody>
+  </table>
+</section>
+
+
 
     <!-- Tambah Anggota -->
     <section id="page-tambahAnggota" class="hidden">
@@ -666,5 +677,4 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </body>
 </html>
-
 
