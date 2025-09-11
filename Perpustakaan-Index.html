@@ -143,12 +143,6 @@
         </button>
         <div id="menuLaporan" 
              class="ml-8 mt-1 max-h-0 overflow-hidden transition-all duration-300 space-y-1 text-sm">
-          <a href="#" onclick="showPage('laporanPeminjaman')" class="block p-1 hover:text-yellow-300">
-            <i class="fas fa-file"></i> Laporan Peminjaman
-          </a>
-          <a href="#" onclick="showPage('laporanPengembalian')" class="block p-1 hover:text-yellow-300">
-            <i class="fas fa-file"></i> Laporan Pengembalian
-          </a>
           <a href="#" onclick="showPage('laporanDenda')" class="block p-1 hover:text-yellow-300">
             <i class="fas fa-file-invoice-dollar"></i> Laporan Denda
           </a>
@@ -171,7 +165,7 @@
 
     <!-- Halaman Beranda -->
     <section id="page-beranda">
-      <h1 class="text-2xl font-bold mb-4">Selamat Datang di Sistem Perpustakaan</h1>
+      <h1 class="text-2xl font-bold mb-4">Selamat Datang di Sistem Perpustakaan SD Negeri 12 Padang Lua</h1>
       <p class="mb-6 text-gray-700">Berikut adalah ringkasan data perpustakaan Anda.</p>
 
       <!-- Cards Statistik -->
@@ -246,11 +240,28 @@
       <table class="w-full bg-white shadow-md rounded-lg overflow-hidden">
         <thead class="bg-indigo-900 text-white">
           <tr>
-            <th class="p-2">Kode</th>
-            <th class="p-2">Judul</th>
-            <th class="p-2">Pengarang</th>
-            <th class="p-2">Tahun</th>
-            <th class="p-2">Rak</th>
+          <th class="p-2">Kode Buku</th>
+          <th class="p-2">Judul Buku</th>
+          <th class="p-2">Pengarang</th>
+          <th class="p-2">Penerjemah</th>
+          <th class="p-2">Penerbit</th>
+          <th class="p-2">Tahun Terbit</th>
+          <th class="p-2">Tempat Terbit</th>
+          <th class="p-2">Edisi</th>
+          <th class="p-2">Kategori</th>
+          <th class="p-2">ISBN</th>
+          <th class="p-2">DDC</th>
+          <th class="p-2">Halaman</th>
+          <th class="p-2">Ukuran</th>
+          <th class="p-2">Sumber</th>
+          <th class="p-2">Jumlah</th>
+          <th class="p-2">Tanggal Masuk</th>
+          <th class="p-2">No. Inventaris</th>
+          <th class="p-2">Rak</th>
+          <th class="p-2">Asal Buku</th>
+          <th class="p-2">Keterangan</th>
+          <th class="p-2">Harga</th>
+          <th class="p-2">Aksi</th>
           </tr>
         </thead>
         <tbody id="tbody-books">
@@ -259,23 +270,36 @@
       </table>
     </section>
 
-    <!-- Tambah Buku -->
-    <section id="page-tambahBuku" class="hidden">
-      <h2 class="text-xl font-bold mb-4"><i class="fas fa-plus"></i> Tambah Buku</h2>
-      <form id="form-buku" class="bg-white shadow-md rounded-lg p-4 space-y-3">
-        <input name="kode" type="text" placeholder="Kode Buku" 
-               class="w-full p-2 border rounded" required />
-        <input name="judul" type="text" placeholder="Judul Buku" 
-               class="w-full p-2 border rounded" required />
-        <input name="pengarang" type="text" placeholder="Pengarang" 
-               class="w-full p-2 border rounded">
-        <input name="tahun" type="number" placeholder="Tahun Terbit" 
-               class="w-full p-2 border rounded">
-        <input name="rak" type="text" placeholder="Rak Buku" 
-               class="w-full p-2 border rounded">
-        <button class="bg-indigo-900 text-white px-4 py-2 rounded">Simpan</button>
-      </form>
-    </section>
+<!-- Tambah Buku -->
+<section id="page-tambahBuku" class="hidden">
+  <h2 class="text-xl font-bold mb-4"><i class="fas fa-plus"></i> Tambah Buku</h2>
+  <form id="form-buku" class="bg-white shadow-md rounded-lg p-4 space-y-3">
+    <input name="kode" type="text" placeholder="Kode Buku" class="w-full p-2 border rounded" required>
+    <input name="judul" type="text" placeholder="Judul Buku" class="w-full p-2 border rounded" required>
+    <input name="pengarang" type="text" placeholder="Pengarang" class="w-full p-2 border rounded">
+    <input name="penerjemah" type="text" placeholder="Penerjemah" class="w-full p-2 border rounded">
+    <input name="penerbit" type="text" placeholder="Penerbit" class="w-full p-2 border rounded">
+    <input name="tahun" type="text" placeholder="Tahun Terbit" class="w-full p-2 border rounded">
+    <input name="tempat" type="text" placeholder="Tempat Terbit" class="w-full p-2 border rounded">
+    <input name="edisi" type="text" placeholder="Edisi" class="w-full p-2 border rounded">
+    <input name="kategori" type="text" placeholder="Kategori" class="w-full p-2 border rounded">
+    <input name="isbn" type="text" placeholder="ISBN" class="w-full p-2 border rounded">
+    <input name="ddc" type="text" placeholder="DDC" class="w-full p-2 border rounded">
+    <input name="halaman" type="text" placeholder="Halaman" class="w-full p-2 border rounded">
+    <input name="ukuran" type="text" placeholder="Ukuran" class="w-full p-2 border rounded">
+    <input name="kataKunci" type="text" placeholder="Kata Kunci" class="w-full p-2 border rounded">
+    <input name="sumber" type="text" placeholder="Sumber" class="w-full p-2 border rounded">
+    <input name="jumlah" type="number" placeholder="Jumlah" class="w-full p-2 border rounded" min="1">
+    <input name="tglMasuk" type="date" placeholder="Tanggal Masuk" class="w-full p-2 border rounded">
+    <input name="noInventaris" type="text" placeholder="No. Inventaris" class="w-full p-2 border rounded">
+    <input name="rak" type="text" placeholder="Rak" class="w-full p-2 border rounded">
+    <input name="asal" type="text" placeholder="Asal Buku" class="w-full p-2 border rounded">
+    <input name="keterangan" type="text" placeholder="Keterangan" class="w-full p-2 border rounded">
+    <input name="harga" type="number" placeholder="Harga" class="w-full p-2 border rounded" step="0.01">
+    <button class="bg-indigo-900 text-white px-4 py-2 rounded" type="submit">Simpan</button>
+  </form>
+</section>
+
 
     <!-- Import/Export Buku (halaman bantuan) -->
     <section id="page-importBuku" class="hidden">
@@ -301,30 +325,49 @@
     </section>
 
     <!-- Cetak Label -->
-    <section id="page-cetakLabel" class="hidden">
-      <h2 class="text-xl font-bold mb-4"><i class="fas fa-tags"></i> Cetak Label Buku</h2>
-      <form id="form-cetak-label" class="space-y-2 bg-white p-4 rounded shadow">
-        <input id="labelKode" type="text" placeholder="Masukkan Kode Buku" 
-               class="w-full p-2 border rounded">
-        <button onclick="generateLabel(event)" 
-                class="bg-indigo-900 text-white px-4 py-2 rounded">Cetak Label</button>
-      </form>
-      <div id="labelArea" class="mt-4"></div>
-    </section>
+<section id="page-cetakLabel" class="hidden">
+  <h2 class="text-xl font-bold mb-4"><i class="fas fa-tag"></i> Cetak Label Buku</h2>
+  <form id="form-cetak-label" class="space-y-2 bg-white p-4 rounded shadow">
+    <input id="labelKode" type="text" placeholder="Masukkan Kode Buku" class="w-full p-2 border rounded">
+    <button onclick="generateLabel(event)" class="bg-indigo-900 text-white px-4 py-2 rounded">Cetak Label</button>
+  </form>
+  <div id="labelArea" class="mt-4"></div>
+  <div class="mt-3 flex gap-2">
+  <button id="btnPrintLabel" onclick="printLabel()" class="hidden bg-green-600 text-white px-3 py-1 rounded">Print</button>
+  <button id="btnCopyLabel" onclick="copyLabel()" class="hidden bg-yellow-500 text-white px-3 py-1 rounded">Salin</button>
+  </div>
+  <button id="btnCopyLabel" onclick="copyLabel()" 
+          class="hidden mt-3 bg-green-600 text-white px-4 py-2 rounded">
+  Salin Kode Label
+  </button>
+  <button onclick="printLabel()" id="btnPrintLabel"
+          class="mt-3 bg-blue-600 text-white px-4 py-2 rounded hidden">
+    Print Label
+  </button>
+</section>
+
 
     <!-- Cetak Barcode -->
-    <section id="page-cetakBarcode" class="hidden">
-      <h2 class="text-xl font-bold mb-4"><i class="fas fa-barcode"></i> Cetak Barcode Buku</h2>
-      <form id="form-barcode-buku" onsubmit="generateBarcode(event)" 
-            class="space-y-2 bg-white p-4 rounded shadow">
-        <input id="kodeBarcode" name="kodeBarcode" type="text" 
-               placeholder="Masukkan Kode Buku" class="w-full p-2 border rounded">
-        <button class="bg-indigo-900 text-white px-4 py-2 rounded">Generate Barcode</button>
-      </form>
-      <div id="barcodeArea" 
-           class="mt-4 p-4 border rounded bg-gray-50 text-center"></div>
-    </section>
-
+<section id="page-cetakBarcode" class="hidden">
+  <h2 class="text-xl font-bold mb-4"><i class="fas fa-barcode"></i> Cetak Barcode Buku</h2>
+  <form id="form-barcode-buku" onsubmit="generateBarcode(event)" class="space-y-2 bg-white p-4 rounded shadow">
+    <input id="kodeBarcode" name="kodeBarcode" type="text" placeholder="Masukkan Kode Buku" class="w-full p-2 border rounded">
+    <button class="bg-indigo-900 text-white px-4 py-2 rounded">Generate Barcode</button>
+  </form>
+  <div id="barcodeArea" class="mt-4 p-4 border rounded bg-gray-50 text-center"></div>
+  <div class="mt-3 flex gap-2">
+  <button id="btnPrintBarcode" onclick="printBarcode()" class="hidden bg-green-600 text-white px-3 py-1 rounded">Print</button>
+  <button id="btnCopyBarcode" onclick="copyBarcode()" class="hidden bg-yellow-500 text-white px-3 py-1 rounded">Salin</button>
+  </div>
+  <button id="btnCopyBarcode" onclick="copyBarcode()" 
+        class="hidden mt-3 bg-green-600 text-white px-4 py-2 rounded">
+  Salin Kode Barcode
+  </button>
+  <button onclick="printBarcode()" id="btnPrintBarcode"
+          class="mt-3 bg-blue-600 text-white px-4 py-2 rounded hidden">
+    Print Barcode
+  </button>
+</section>
 
 
     <!-- Daftar Anggota -->
@@ -347,7 +390,9 @@
           <tr>
             <th class="p-2">ID Anggota</th>
             <th class="p-2">Nama</th>
-            <th class="p-2">Kelas/Alamat</th>
+	    <th class="p-2">Jenis Kelamin</th>
+            <th class="p-2">Kelas</th>
+	    <th class="p-2">Alamat</th>
             <th class="p-2">No. HP</th>
             <th class="p-2">Status</th>
           </tr>
@@ -364,8 +409,29 @@
                class="w-full p-2 border rounded" required />
         <input name="nama" type="text" placeholder="Nama Lengkap" 
                class="w-full p-2 border rounded" required />
-        <input name="kelas" type="text" placeholder="Kelas / Alamat" 
-               class="w-full p-2 border rounded" />
+	<select name="kelamin" class="w-full p-2 border rounded" required>
+        <option value="">-- Pilih Jenis Kelamin --</option>
+        <option value="L">Laki-laki</option>
+        <option value="P">Perempuan</option>
+        </select>
+	<select name="kelas" class="w-full p-2 border rounded">
+  	<option value="">-- Pilih Kelas --</option>
+  	<option value="Guru">Guru</option>
+  	<option value="Kelas 1A">Kelas 1A</option>
+  	<option value="Kelas 1B">Kelas 1B</option>
+  	<option value="Kelas 2A">Kelas 2A</option>
+  	<option value="Kelas 2B">Kelas 2B</option>
+  	<option value="Kelas 3A">Kelas 3A</option>
+  	<option value="Kelas 3B">Kelas 3B</option>
+  	<option value="Kelas 4A">Kelas 4A</option>
+  	<option value="Kelas 4B">Kelas 4B</option>
+  	<option value="Kelas 5A">Kelas 5A</option>
+  	<option value="Kelas 5B">Kelas 5B</option>
+  	<option value="Kelas 6A">Kelas 6A</option>
+  	<option value="Kelas 6B">Kelas 6B</option>
+	</select>
+	<input name="alamat" type="text" placeholder="Alamat" 
+       	       class="w-full p-2 border rounded" />
         <input name="hp" type="text" placeholder="No. HP" 
                class="w-full p-2 border rounded" />
         <select name="status" class="w-full p-2 border rounded">
@@ -382,38 +448,55 @@
       <p class="text-gray-600">Gunakan tombol import/export di halaman Daftar Anggota.</p>
     </section>
 
-    <!-- Cetak Kartu Anggota -->
-    <section id="page-cetakKartu" class="hidden">
-      <h2 class="text-xl font-bold mb-4"><i class="fas fa-id-card"></i> Cetak Kartu Anggota</h2>
-      <div class="bg-white p-4 rounded shadow">
-        <form id="form-kartu" onsubmit="generateCardBarcode(event)" class="space-y-2">
-          <input id="kodeAnggota" name="kodeAnggota" type="text" 
-                 placeholder="Masukkan ID Anggota" class="w-full p-2 border rounded">
-          <button class="bg-indigo-900 text-white px-4 py-2 rounded">Generate Kartu</button>
-        </form>
-        <div id="cardArea" 
-             class="mt-4 p-4 border rounded bg-gray-50 text-center hidden">
-          <h3 class="font-bold">Kartu Anggota</h3>
-          <p id="namaAnggota">Nama: -</p>
-          <p id="idAnggota">ID: -</p>
-          <div id="barcodeCard" class="mt-2"></div>
-        </div>
+<!-- Cetak Kartu Anggota -->
+<section id="page-cetakKartu" class="hidden">
+  <h2 class="text-xl font-bold mb-4"><i class="fas fa-id-card"></i> Cetak Kartu Anggota</h2>
+  <div class="bg-white p-4 rounded shadow">
+    <form id="form-kartu" onsubmit="generateCardBarcode(event)" class="space-y-2">
+      <input id="kodeAnggota" name="kodeAnggota" type="text" placeholder="Masukkan ID Anggota" class="w-full p-2 border rounded">
+      <button class="bg-indigo-900 text-white px-4 py-2 rounded">Generate Kartu</button>
+    </form>
+
+    <div id="cardArea" class="mt-4 p-4 border rounded bg-gray-50 text-center hidden">
+      <h3 class="font-bold">Kartu Anggota</h3>
+      <p id="namaAnggota">Nama: -</p>
+      <p id="idAnggota">ID: -</p>
+      <div id="barcodeCard" class="mt-2"></div>
+
+      <!-- Tombol print & salin hanya 1 kali -->
+      <div class="mt-4 flex gap-2 justify-center">
+        <button id="btnPrintCard" onclick="printCard()" 
+                class="bg-green-600 text-white px-3 py-1 rounded hidden">Print</button>
+        <button id="btnCopyCard" onclick="copyCard()" 
+                class="bg-blue-600 text-white px-3 py-1 rounded hidden">Salin</button>
       </div>
-    </section>
+    </div>
+  </div>
+</section>
+
+<!-- Peminjaman -->
+<section id="page-peminjaman" class="hidden">
+  <h2 class="text-xl font-bold mb-4"><i class="fas fa-book-reader"></i> Form Peminjaman</h2>
+  <form id="form-loan" class="bg-white shadow-md rounded-lg p-4 space-y-3">
+    <input name="id" type="text" placeholder="ID Pinjam"
+           class="w-full p-2 border rounded" required />
+    <input name="idAnggota" type="text" placeholder="ID Anggota"
+           class="w-full p-2 border rounded" required />
+    <input name="kodeBuku" type="text" placeholder="Kode Buku"
+           class="w-full p-2 border rounded" required />
+
+    <!-- Tanggal Pinjam -->
+    <input name="tglPinjam" type="date"
+           class="w-full p-2 border rounded" required />
+
+    <!-- Tanggal Kembali (pilih manual) -->
+    <input name="tglKembali" type="date"
+           class="w-full p-2 border rounded" required />
+    <button type="submit" class="bg-indigo-900 text-white px-4 py-2 rounded">Simpan</button>
+  </form>
+</section>
 
 
-
-    <!-- Peminjaman -->
-    <section id="page-peminjaman" class="hidden">
-      <h2 class="text-xl font-bold mb-4"><i class="fas fa-book-reader"></i> Form Peminjaman</h2>
-      <form id="form-loan" class="bg-white shadow-md rounded-lg p-4 space-y-3">
-        <input name="id" type="text" placeholder="ID Pinjam" class="w-full p-2 border rounded" required />
-        <input name="idAnggota" type="text" placeholder="ID Anggota" class="w-full p-2 border rounded" required />
-        <input name="kodeBuku" type="text" placeholder="Kode Buku" class="w-full p-2 border rounded" required />
-        <input name="tglPinjam" type="date" placeholder="Tanggal Pinjam" class="w-full p-2 border rounded" />
-        <button class="bg-indigo-900 text-white px-4 py-2 rounded">Simpan</button>
-      </form>
-    </section>
 
     <!-- Pengembalian -->
     <section id="page-pengembalian" class="hidden">
@@ -428,6 +511,7 @@
     </section>
 
     <!-- Data Peminjaman -->
+        <!-- Data Peminjaman -->
     <section id="page-dataPeminjaman" class="hidden">
       <h2 class="text-xl font-bold mb-4"><i class="fas fa-database"></i> Data Peminjaman</h2>
       <div class="flex gap-2 mb-3">
@@ -446,11 +530,13 @@
             <th class="p-2">ID Anggota</th>
             <th class="p-2">Kode Buku</th>
             <th class="p-2">Tanggal Pinjam</th>
+	    <th class="p-2">Tanggal Kembali</th>
           </tr>
         </thead>
         <tbody id="tbody-loans"></tbody>
       </table>
     </section>
+
 
     <!-- Data Pengembalian -->
     <section id="page-dataPengembalian" class="hidden">
@@ -525,40 +611,6 @@
               class="bg-red-600 px-3 py-1 rounded text-white mt-3">Hapus Semua Riwayat</button>
     </section>
 
-    <!-- Laporan Peminjaman -->
-    <section id="page-laporanPeminjaman" class="hidden">
-      <h2 class="text-xl font-bold mb-4"><i class="fas fa-file-alt"></i> Laporan Peminjaman</h2>
-      <table class="w-full bg-white shadow rounded-lg">
-        <thead class="bg-indigo-900 text-white">
-          <tr>
-            <th class="p-2">No</th>
-            <th class="p-2">ID Pinjam</th>
-            <th class="p-2">ID Anggota</th>
-            <th class="p-2">Kode Buku</th>
-            <th class="p-2">Tanggal Pinjam</th>
-          </tr>
-        </thead>
-        <tbody id="tbody-laporan-peminjaman"></tbody>
-      </table>
-    </section>
-
-    <!-- Laporan Pengembalian -->
-    <section id="page-laporanPengembalian" class="hidden">
-      <h2 class="text-xl font-bold mb-4"><i class="fas fa-file-contract"></i> Laporan Pengembalian</h2>
-      <table class="w-full bg-white shadow rounded-lg">
-        <thead class="bg-indigo-900 text-white">
-          <tr>
-            <th class="p-2">No</th>
-            <th class="p-2">ID Kembali</th>
-            <th class="p-2">ID Pinjam</th>
-            <th class="p-2">Tanggal Kembali</th>
-            <th class="p-2">Denda</th>
-          </tr>
-        </thead>
-        <tbody id="tbody-laporan-returns"></tbody>
-      </table>
-    </section>
-
     <!-- Laporan Denda -->
     <section id="page-laporanDenda" class="hidden">
       <h2 class="text-xl font-bold mb-4"><i class="fas fa-money-bill-wave"></i> Laporan Denda</h2>
@@ -610,7 +662,9 @@
   </main>
 
   <!-- Script -->
-  <script src="app.js"></script>
+<script src="App.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </body>
 </html>
+
 
