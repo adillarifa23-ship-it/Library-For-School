@@ -267,6 +267,7 @@
         <th class="p-2">Asal Buku</th>
         <th class="p-2">Keterangan</th>
         <th class="p-2">Harga</th>
+	<th class="p-2">Aksi</th> 
       </tr>
     </thead>
     <tbody id="tbody-books"></tbody>
@@ -311,21 +312,30 @@
     </section>
 
     <!-- Klasifikasi & Rak -->
-    <section id="page-klasifikasi" class="hidden">
-      <h2 class="text-xl font-bold mb-4"><i class="fas fa-layer-group"></i> Klasifikasi & Rak Buku</h2>
-      <table class="w-full bg-white shadow-md rounded-lg overflow-hidden">
-        <thead class="bg-indigo-900 text-white">
-          <tr>
-            <th class="p-2">Kode Rak</th>
-            <th class="p-2">Kategori</th>
-            <th class="p-2">Lokasi Rak</th>
-          </tr>
-        </thead>
-        <tbody id="tbody-klasifikasi">
-          <!-- kosong, bisa diisi manual -->
-        </tbody>
-      </table>
-    </section>
+<section id="page-klasifikasi" class="hidden">
+  <h2 class="text-xl font-bold mb-4"><i class="fas fa-layer-group"></i> Klasifikasi & Rak Buku</h2>
+
+  <div class="flex gap-2 mb-3">
+    <input id="importRakFile" type="file" accept=".csv, .xlsx" />
+    <button onclick="importDataFromFile('shelves', 'importRakFile')" class="bg-yellow-500 px-3 py-1 rounded">Import</button>
+    <button onclick="exportDataToFile('shelves', 'rak_export')" class="bg-blue-500 px-3 py-1 rounded text-white">Export CSV</button>
+    <button onclick="exportDataToXLSX('shelves', 'rak_export.xlsx')" class="bg-green-600 px-3 py-1 rounded text-white">Export XLSX</button>
+    <button onclick="hapusSemuaRak()" class="bg-red-600 px-3 py-1 rounded text-white">Hapus Semua</button>
+  </div>
+
+  <table class="w-full bg-white shadow-md rounded-lg overflow-hidden">
+    <thead class="bg-indigo-900 text-white">
+      <tr>
+        <th class="p-2">No</th>
+        <th class="p-2">Kode Rak</th>
+        <th class="p-2">Nama Rak</th>
+        <th class="p-2">Aksi</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-klasifikasi"></tbody>
+  </table>
+</section>
+
 
     <!-- Cetak Label -->
 <section id="page-cetakLabel" class="hidden">
@@ -404,6 +414,7 @@
         <th class="p-2">Alamat</th>
         <th class="p-2">No. HP</th>
         <th class="p-2">Status</th>
+        <th class="p-2">Aksi</th>
       </tr>
     </thead>
     <tbody id="tbody-members"></tbody>
