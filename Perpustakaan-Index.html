@@ -121,9 +121,6 @@
           <a href="#" onclick="showPage('dataPengembalian')" class="block p-1 hover:text-yellow-300">
             <i class="fas fa-table"></i> Data Pengembalian
           </a>
-          <a href="#" onclick="showPage('reservasi')" class="block p-1 hover:text-yellow-300">
-            <i class="fas fa-calendar-plus"></i> Reservasi Buku
-          </a>
           <a href="#" onclick="showPage('perpanjangan')" class="block p-1 hover:text-yellow-300">
             <i class="fas fa-history"></i> Perpanjangan
           </a>
@@ -226,7 +223,7 @@
 <section id="page-daftarBuku" class="hidden">
   <h2 class="text-xl font-bold mb-4"><i class="fas fa-book"></i> Daftar Buku</h2>
 
-  <!-- 🔍 Pencarian Buku -->
+  <!-- ?? Pencarian Buku -->
   <input id="searchBuku" type="text" placeholder="Cari kode / judul buku..." 
          class="w-full p-2 border rounded mb-3" oninput="renderBooks()">
 
@@ -245,7 +242,7 @@
   <table class="w-full bg-white shadow-md rounded-lg overflow-hidden">
     <thead class="bg-indigo-900 text-white">
       <tr>
-        <th class="p-2">No</th> <!-- ✅ Tambah kolom No -->
+        <th class="p-2">No</th> <!-- ? Tambah kolom No -->
         <th class="p-2">Kode Buku</th>
         <th class="p-2">Judul Buku</th>
         <th class="p-2">Pengarang</th>
@@ -387,7 +384,7 @@
 <section id="page-daftarAnggota" class="hidden">
   <h2 class="text-xl font-bold mb-4"><i class="fas fa-users"></i> Daftar Anggota</h2>
 
-  <!-- 🔍 Pencarian Anggota -->
+  <!-- ?? Pencarian Anggota -->
   <input id="searchAnggota" type="text" placeholder="Cari ID / Nama anggota..." 
          class="w-full p-2 border rounded mb-3" oninput="renderMembers()">
 
@@ -406,7 +403,7 @@
   <table class="w-full bg-white shadow-md rounded-lg overflow-hidden">
     <thead class="bg-indigo-900 text-white">
       <tr>
-        <th class="p-2">No</th> <!-- ✅ Tambah kolom No -->
+        <th class="p-2">No</th> <!-- ? Tambah kolom No -->
         <th class="p-2">ID Anggota</th>
         <th class="p-2">Nama</th>
         <th class="p-2">Jenis Kelamin</th>
@@ -470,31 +467,49 @@
       <p class="text-gray-600">Gunakan tombol import/export di halaman Daftar Anggota.</p>
     </section>
 
-<!-- Cetak Kartu Anggota -->
-<section id="page-cetakKartu" class="hidden">
+  <!-- area kartu -->
+  <section id="page-cetakKartu" class="hidden">
   <h2 class="text-xl font-bold mb-4"><i class="fas fa-id-card"></i> Cetak Kartu Anggota</h2>
-  <div class="bg-white p-4 rounded shadow">
-    <form id="form-kartu" onsubmit="generateCardBarcode(event)" class="space-y-2">
-      <input id="kodeAnggota" name="kodeAnggota" type="text" placeholder="Masukkan ID Anggota" class="w-full p-2 border rounded">
-      <button class="bg-indigo-900 text-white px-4 py-2 rounded">Generate Kartu</button>
-    </form>
+  
+  <form id="form-kartu" onsubmit="generateCardBarcode(event)" class="space-y-2">
+    <input id="kodeAnggota" name="kodeAnggota" type="text" placeholder="Masukkan ID Anggota" class="w-full p-2 border rounded">
+    <button class="bg-indigo-900 text-white px-4 py-2 rounded">Generate Kartu</button>
+  </form>
 
-    <div id="cardArea" class="mt-4 p-4 border rounded bg-gray-50 text-center hidden">
-      <h3 class="font-bold">Kartu Anggota</h3>
-      <p id="namaAnggota">Nama: -</p>
-      <p id="idAnggota">ID: -</p>
-      <div id="barcodeCard" class="mt-2"></div>
-
-      <!-- Tombol print & salin hanya 1 kali -->
-      <div class="mt-4 flex gap-2 justify-center">
-        <button id="btnPrintCard" onclick="printCard()" 
-                class="bg-green-600 text-white px-3 py-1 rounded hidden">Print</button>
-        <button id="btnCopyCard" onclick="copyCard()" 
-                class="bg-blue-600 text-white px-3 py-1 rounded hidden">Salin</button>
+  <div id="cardArea" class="mt-4 flex justify-center hidden">
+    <div id="kartu-container" class="w-[480px] h-[280px] border rounded shadow relative bg-white">
+      <!-- header -->
+      <div class="bg-green-600 text-white text-center p-2">
+        <h3 class="font-bold text-lg">KARTU ANGGOTA</h3>
+        <p>PERPUSTAKAAN SD N 12 Padang Lua</p>
+      </div>
+      <!-- isi -->
+      <div class="p-3 text-sm break-words">
+        <p><b>Nama:</b> <span id="kartu-nama"></span></p>
+        <p><b>Alamat:</b> <span id="kartu-alamat"></span></p>
+        <p><b>No Anggota:</b> <span id="kartu-id"></span></p>
+        <div class="mt-2 flex justify-center">
+          <svg id="kartu-barcode" class="max-w-full"></svg>
+        </div>
+      </div>
+      <!-- foto -->
+      <div class="absolute right-3 bottom-3 w-[90px] h-[120px] border flex items-center justify-center text-xs">
+        Pas Foto 3x4
       </div>
     </div>
   </div>
+
+  <!-- tombol kontrol (di luar kartu) -->
+  <div class="mt-4 flex gap-2">
+    <button id="btnPrintCard" onclick="printCard()" class="hidden bg-blue-600 text-white px-3 py-1 rounded">
+  Cetak Kartu
+</button>
+    <button id="btnCopyCard" onclick="salinDataKartu()" class="hidden bg-green-600 text-white px-3 py-1 rounded">
+      Salin Data
+    </button>
+  </div>
 </section>
+
 
 <!-- Peminjaman -->
 <section id="page-peminjaman" class="hidden">
@@ -585,20 +600,6 @@
       </table>
     </section>
 
-    <!-- Reservasi -->
-    <section id="page-reservasi" class="hidden">
-      <h2 class="text-xl font-bold mb-4"><i class="fas fa-calendar-check"></i> Reservasi Buku</h2>
-      <form id="form-resv" class="bg-white shadow-md rounded-lg p-4 space-y-3">
-        <input name="id" type="text" placeholder="ID Reservasi" class="w-full p-2 border rounded" required />
-        <input name="idAnggota" type="text" placeholder="ID Anggota" class="w-full p-2 border rounded" />
-        <input name="kodeBuku" type="text" placeholder="Kode Buku" class="w-full p-2 border rounded" />
-        <input name="tglReservasi" type="date" placeholder="Tanggal Reservasi" class="w-full p-2 border rounded" />
-        <button class="bg-indigo-900 text-white px-4 py-2 rounded">Simpan</button>
-      </form>
-      <!-- ?? Tombol hapus semua reservasi -->
-      <button onclick="hapusSemuaReservasi()" 
-              class="bg-red-600 px-3 py-1 rounded text-white mt-3">Hapus Semua Reservasi</button>
-    </section>
 
     <!-- Perpanjangan -->
     <section id="page-perpanjangan" class="hidden">
@@ -678,9 +679,7 @@
         <tbody id="tbody-laporan-anggota-aktif"></tbody>
       </table>
     </section>
-
-
-
+	  
   </main>
 
   <!-- Script -->
