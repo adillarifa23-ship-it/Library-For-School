@@ -146,7 +146,7 @@ function renderMembers() {
 
   const q = (document.getElementById('searchAnggota')?.value || '').toLowerCase();
 
-  // ✅ pastikan nilai dikonversi ke string dulu
+  // ? pastikan nilai dikonversi ke string dulu
   const filtered = arr.filter(item =>
     String(item.id || '').toLowerCase().includes(q) ||
     String(item.nama || '').toLowerCase().includes(q)
@@ -369,30 +369,24 @@ if (formBuku) {
   }
 
 // ---------- Form Peminjaman ----------
-const formLoan = document.getElementById("form-loan");
+const formLoan = document.getElementById('form-loan');
 if (formLoan) {
-  formLoan.addEventListener("submit", function (e) {
+  formLoan.addEventListener('submit', function(e) {
     e.preventDefault();
-
     const data = new FormData(this);
     const obj = {};
-    for (const [k, v] of data.entries()) obj[k] = v;
+    for (const [k,v] of data.entries()) obj[k] = v;
 
-    let arr = load(STORAGE_KEYS.loans);
-    if (!Array.isArray(arr)) arr = [];
+    let loans = load(STORAGE_KEYS.loans) || [];
+    loans.push(obj);
+    save(STORAGE_KEYS.loans, loans);
 
-    arr.push(obj);
-    save(STORAGE_KEYS.loans, arr);
-
-    this.reset();
     renderLoans();
-    renderHistory();
-    renderReports();
-    updateCharts();
-
-    alert("? Peminjaman tersimpan!");
+    this.reset();
+    alert('Peminjaman berhasil disimpan!');
   });
 }
+
 
 
 
@@ -413,37 +407,45 @@ if (formLoan) {
     });
   }
 
-  // Reservasi
-  const formResv = document.getElementById('form-resv');
-  if (formResv) {
-    formResv.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const data = new FormData(this);
-      const obj = {};
-      for (const [k,v] of data.entries()) obj[k]=v;
-      const arr = load(STORAGE_KEYS.reservations);
-      arr.push(obj);
-      save(STORAGE_KEYS.reservations, arr);
-      this.reset();
-      alert('Reservasi tersimpan!');
-    });
-  }
 
-  // Perpanjangan
-  const formExt = document.getElementById('form-extend');
-  if (formExt) {
-    formExt.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const data = new FormData(this);
-      const obj = {};
-      for (const [k,v] of data.entries()) obj[k]=v;
-      const arr = load(STORAGE_KEYS.extensions);
-      arr.push(obj);
-      save(STORAGE_KEYS.extensions, arr);
-      this.reset();
-      alert('Perpanjangan tersimpan!');
-    });
-  }
+// Perpanjangan
+const formExt = document.getElementById('form-extend');
+if (formExt) {
+  formExt.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const data = new FormData(this);
+    const idLoan = data.get("idPinjam");   // dari form HTML
+    const tglBaru = data.get("tglBaru");
+
+    let loans = load(STORAGE_KEYS.loans) || [];
+    console.log("Loans data detail:");
+    loans.forEach((l, i) => console.log(i, JSON.stringify(l)));
+    console.log("Cari ID dari form:", idLoan);
+
+    // 🔎 cek semua kemungkinan field yang ada di loans
+    const idx = loans.findIndex(l =>
+      String(l.id) === idLoan ||
+      String(l.kodeBuku) === idLoan ||
+      String(l.idAnggota) === idLoan
+    );
+
+    if (idx === -1) {
+      alert("Data peminjaman tidak ditemukan!");
+      return;
+    }
+
+    // update tanggal kembali
+    loans[idx].tglKembali = tglBaru;
+    save(STORAGE_KEYS.loans, loans);
+
+    renderLoans();
+    showPage("page-loans");
+
+    this.reset();
+    alert("Perpanjangan berhasil disimpan!");
+  });
+}
+
 
   // Label generate
   const formLabel = document.getElementById('form-cetak-label');
@@ -451,11 +453,53 @@ if (formLoan) {
     formLabel.addEventListener('submit', generateLabel);
   }
 
-  // Barcode buku generate (ke area barcodeArea)
-  const formBarcodeBuku = document.getElementById('form-barcode-buku');
-  if (formBarcodeBuku) {
-    formBarcodeBuku.addEventListener('submit', generateBarcode);
+ // --- function untuk barcode buku ---
+function generateBarcode(event) {
+  event.preventDefault();
+  const kode = document.getElementById("kodeBarcode").value.trim();
+  if (!kode) {
+    alert("Masukkan kode buku terlebih dahulu!");
+    return;
   }
+
+  const area = document.getElementById("barcodeArea");
+  area.innerHTML = '<svg id="svgBarcode"></svg>';
+  JsBarcode("#svgBarcode", kode, { format: "CODE128", width: 2, height: 60 });
+
+  document.getElementById("btnPrintBarcode").classList.remove("hidden");
+  document.getElementById("btnCopyBarcode").classList.remove("hidden");
+}
+
+function printBarcode() {
+  const printContent = document.getElementById("barcodeArea").innerHTML;
+  const win = window.open('', '', 'width=400,height=300');
+  win.document.write(`
+    <html>
+      <head><title>Cetak Barcode</title></head>
+      <body>${printContent}</body>
+    </html>
+  `);
+  win.document.close();
+  win.print();
+}
+
+function copyBarcode() {
+  const kode = document.getElementById("kodeBarcode").value.trim();
+  if (!kode) {
+    alert("Tidak ada kode untuk disalin!");
+    return;
+  }
+  navigator.clipboard.writeText(kode)
+    .then(() => alert("Kode barcode berhasil disalin!"))
+    .catch(() => alert("Gagal menyalin kode barcode"));
+}
+
+// --- listener form barcode ---
+const formBarcodeBuku = document.getElementById('form-barcode-buku');
+if (formBarcodeBuku) {
+  formBarcodeBuku.addEventListener('submit', generateBarcode);
+}
+
 
   // Kartu anggota generate
   const formKartu = document.getElementById('form-kartu');
@@ -466,55 +510,92 @@ if (formLoan) {
 }); // DOMContentLoaded end
 
 // ---------- Barcode / Label functions ----------
-function generateBarcode(e) {
-  e.preventDefault();
-  const kode = document.getElementById('kodeBarcode').value;
-  if (!kode) { alert('Masukkan kode buku'); return; }
-  document.getElementById('barcodeArea').innerHTML = `<svg id="barcodeSVG"></svg>`;
-  JsBarcode("#barcodeSVG", kode, { format: "CODE128", width: 2, height: 60, displayValue: true });
-  document.getElementById("btnPrintBarcode").classList.remove("hidden"); // tampilkan tombol print
-  document.getElementById("btnCopyBarcode").classList.remove("hidden");
-}
+function generateCardBarcode(event) {
+  event.preventDefault();
+  const kode = document.getElementById("kodeAnggota").value.trim();
+  const members = load(STORAGE_KEYS.members);
+  const m = members.find(x => String(x.id).trim() === kode);
 
-function printBarcode() {
-  const printContent = document.getElementById("barcodeArea").innerHTML;
-  const win = window.open('', '', 'width=600,height=400');
-  win.document.write(printContent);
-  win.document.close();
-  win.print();
-}
-
-function generateCardBarcode(e) {
-  e.preventDefault();
-  const kode = document.getElementById('kodeAnggota').value;
-  if (!kode) { 
-    alert('Masukkan ID anggota'); 
-    return; 
+  if (!m) {
+    alert("Anggota tidak ditemukan!");
+    return;
   }
 
-  document.getElementById('cardArea').classList.remove('hidden');
-  document.getElementById('idAnggota').innerText = "ID: " + kode;
+ // Isi data ke kartu
+document.getElementById("kartu-nama").textContent = m.nama || "-";
+document.getElementById("kartu-alamat").textContent = m.alamat || "-";
+document.getElementById("kartu-id").textContent = m.id || "-";
 
-  const members = load(STORAGE_KEYS.members);
-  const m = members.find(x => String(x.id).trim() === String(kode).trim());
-  document.getElementById('namaAnggota').innerText = "Nama: " + (m ? m.nama : '(data tidak ditemukan)');
+// Generate barcode
+JsBarcode("#kartu-barcode", m.id, { format: "CODE128", width: 2, height: 50 });
 
-  document.getElementById('barcodeCard').innerHTML = `<svg id="barcodeAnggotaSVG"></svg>`;
-  JsBarcode("#barcodeAnggotaSVG", kode, { format: "CODE128", width: 2, height: 40, displayValue: true });
-
-  // tampilkan tombol print & salin
-  document.getElementById("btnPrintCard").classList.remove("hidden");
-  document.getElementById("btnCopyCard").classList.remove("hidden");
+  // Tampilkan kartu
+document.getElementById("cardArea").classList.remove("hidden");
+document.getElementById("btnPrintCard").classList.remove("hidden");
+document.getElementById("btnCopyCard").classList.remove("hidden"); // ✅ tambahan
 }
+
+function salinDataKartu() {
+  const kartu = document.getElementById("kartu-container");
+  html2canvas(document.getElementById("kartu-container"), {
+  backgroundColor: "#ffffff"  // ✅ paksa putih
+}).then(canvas => {
+    canvas.toBlob(blob => {
+      if (navigator.clipboard && window.ClipboardItem) {
+        const item = new ClipboardItem({ "image/png": blob });
+        navigator.clipboard.write([item]).then(() => {
+          alert("Kartu berhasil disalin sebagai gambar! Tempelkan ke Word/Docs.");
+        }).catch(err => {
+          console.error("Clipboard gagal, fallback ke download:", err);
+          downloadCanvas(canvas);
+        });
+      } else {
+        // Browser tidak support → langsung download
+        downloadCanvas(canvas);
+      }
+    });
+  });
+}
+
+function downloadCanvas(canvas) {
+  const link = document.createElement("a");
+  link.download = "kartu-anggota.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+  alert("Browser tidak mendukung salin gambar. Kartu sudah diunduh sebagai PNG.");
+}
+
 
 
 function printCard() {
-  const printContent = document.getElementById("cardArea").innerHTML;
-  const win = window.open('', '', 'width=600,height=400');
-  win.document.write(printContent);
+  const kartu = document.getElementById("kartu-container").outerHTML;
+  const win = window.open('', '', 'width=800,height=600');
+  win.document.write(`
+    <html>
+      <head>
+        <title>Cetak Kartu</title>
+        <style>
+          body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
+          #kartu-container {
+            width: 480px;
+            height: 280px;
+            border: 1px solid #000;
+          }
+        </style>
+      </head>
+      <body>${kartu}</body>
+    </html>
+  `);
   win.document.close();
   win.print();
 }
+
 
 function generateLabel(e) {
   e.preventDefault();
