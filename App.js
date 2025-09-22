@@ -110,7 +110,6 @@ function renderBooks() {
     tr.className = 'border-b';
     tr.innerHTML = `
       <td class="p-2">${idx + 1}</td>
-      <td class="p-2">${item.kode || ''}</td>
       <td class="p-2">${item.judul || ''}</td>
       <td class="p-2">${item.pengarang || ''}</td>
       <td class="p-2">${item.penerjemah || ''}</td>
@@ -191,7 +190,7 @@ function renderLoans() {
     tr.innerHTML = `
       <td class="p-2">${item.id || ''}</td>
       <td class="p-2">${item.idAnggota || ''}</td>
-      <td class="p-2">${item.kodeBuku || ''}</td>
+      <td class="p-2">${item.noInventaris || ''}</td>
       <td class="p-2">${item.tglPinjam || ''}</td>
       <td class="p-2">${item.tglKembali || ''}</td>
     `;
@@ -235,7 +234,7 @@ function renderHistory() {
     tr.className = 'border-b';
     tr.innerHTML = `<td class="p-2">${l.id||''}</td>
                     <td class="p-2">${l.idAnggota||''}</td>
-                    <td class="p-2">${l.kodeBuku||''}</td>
+                    <td class="p-2">${l.noInventaris||''}</td>
                     <td class="p-2">${l.tglPinjam||''}</td>
                     <td class="p-2">${r ? r.tglKembali : '-'}</td>`;
     tb.appendChild(tr);
