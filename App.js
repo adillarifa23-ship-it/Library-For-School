@@ -132,6 +132,9 @@ function renderBooks() {
       <td class="p-2">${item.asal || ''}</td>
       <td class="p-2">${item.keterangan || ''}</td>
       <td class="p-2">${item.harga || ''}</td>
+	<button onclick="editBuku('${item.kode}')" class="text-blue-600">Edit</button>
+        <button onclick="hapusBuku('${item.kode}')" class="text-red-600 ml-2">Hapus</button>
+      </td>
     `;
     tb.appendChild(tr);
   });
@@ -422,7 +425,7 @@ if (formExt) {
     loans.forEach((l, i) => console.log(i, JSON.stringify(l)));
     console.log("Cari ID dari form:", idLoan);
 
-    // 🔎 cek semua kemungkinan field yang ada di loans
+    // ?? cek semua kemungkinan field yang ada di loans
     const idx = loans.findIndex(l =>
       String(l.id) === idLoan ||
       String(l.kodeBuku) === idLoan ||
@@ -532,13 +535,13 @@ JsBarcode("#kartu-barcode", m.id, { format: "CODE128", width: 2, height: 50 });
   // Tampilkan kartu
 document.getElementById("cardArea").classList.remove("hidden");
 document.getElementById("btnPrintCard").classList.remove("hidden");
-document.getElementById("btnCopyCard").classList.remove("hidden"); // ✅ tambahan
+document.getElementById("btnCopyCard").classList.remove("hidden"); // ? tambahan
 }
 
 function salinDataKartu() {
   const kartu = document.getElementById("kartu-container");
   html2canvas(document.getElementById("kartu-container"), {
-  backgroundColor: "#ffffff"  // ✅ paksa putih
+  backgroundColor: "#ffffff"  // ? paksa putih
 }).then(canvas => {
     canvas.toBlob(blob => {
       if (navigator.clipboard && window.ClipboardItem) {
@@ -550,7 +553,7 @@ function salinDataKartu() {
           downloadCanvas(canvas);
         });
       } else {
-        // Browser tidak support → langsung download
+        // Browser tidak support ? langsung download
         downloadCanvas(canvas);
       }
     });
@@ -606,28 +609,31 @@ function generateLabel(e) {
   }
 
   // ambil data buku dari localStorage
-  const books = load(STORAGE_KEYS.books);
-  const book = books.find(b => b.kode === kode);
+const books = load(STORAGE_KEYS.books);
+const book = books.find(b => b.kode === kode);
 
-  // isi label lengkap dengan teks lebih besar & rata tengah
-  document.getElementById('labelArea').innerHTML = `
-    <div style="width:90mm; height:60mm; border:2px solid black; border-radius:6px; 
-                padding:6px; font-family:Arial, sans-serif; 
-                display:flex; flex-direction:column; justify-content:center; align-items:center;">
+// bikin HTML untuk label tanpa awalan teks
+const htmlOutput = `
+  <div style="width:76mm; height:36mm; border:2px solid red; border-radius:6px; 
+              padding:6px; font-family:'Times New Roman', Times, serif; 
+              display:flex; flex-direction:column; justify-content:center; align-items:center;">
 
-      <div style="font-size:18px; font-weight:bold; margin-bottom:6px; text-align:center;">
-        Perpustakaan SD Negeri 12 Padang Lua
-      </div>
-
-      <div style="font-size:15px; line-height:1.4; text-align:center; width:95%;">
-        <div><b>Kode:</b> ${book ? book.kode : kode}</div>
-        <div><b>Judul:</b> ${book ? (book.judul || '-') : '-'}</div>
-        <div><b>Pengarang:</b> ${book ? (book.pengarang || '-') : '-'}</div>
-        <div><b>Rak:</b> ${book ? (book.rak || '-') : '-'}</div>
-        <div><b>Kategori:</b> ${book ? (book.kategori || '-') : '-'}</div>
-      </div>
+    <div style="font-size:15px; font-weight:bold; margin-bottom:8px; text-align:center; text-decoration: underline;">
+      Perpustakaan SD Negeri 12 Padang Lua
     </div>
-  `;
+
+    <div style="font-size:14px; line-height:1.4; text-align:center; width:95%;">
+      <div>${book ? book.DDC : DDC}</div>
+      <div>${book ? (book.judul ? book.judul.substring(0,3).toUpperCase() : '-') : '-'}</div>
+      <div>${book ? (book.pengarang ? book.pengarang.substring(0,3).toUpperCase() : '-') : '-'}</div>
+      <div>${book ? (book.rak || '-') : '-'}</div>
+    </div>
+  </div>
+`;
+
+// masukkan ke div labelArea
+document.getElementById('labelArea').innerHTML = htmlOutput;
+
 
   // tampilkan tombol print & copy
   if (document.getElementById("btnPrintLabel")) {
@@ -830,14 +836,15 @@ function editBuku(kode) {
   if (index === -1) return;
 
   const buku = arr[index];
-  const judulBaru = prompt("Ubah Judul Buku:", buku.judul || "");
-  if (judulBaru === null) return;
+  const jumlahBaru = prompt("Ubah Jumlah Buku:", buku.jumlah || "");
+  if (jumlahBaru === null) return;
 
-  arr[index].judul = judulBaru;
+  arr[index].jumlah = jumlahBaru;
   save(STORAGE_KEYS.books, arr);
   renderBooks();
   alert("Buku berhasil diperbarui!");
 }
+
 
 
 // Hapus semua anggota
