@@ -243,7 +243,6 @@
     <thead class="bg-indigo-900 text-white">
       <tr>
         <th class="p-2">No</th> <!-- ? Tambah kolom No -->
-        <th class="p-2">Kode Buku</th>
         <th class="p-2">Judul Buku</th>
         <th class="p-2">Pengarang</th>
         <th class="p-2">Penerjemah</th>
@@ -275,7 +274,6 @@
 <section id="page-tambahBuku" class="hidden">
   <h2 class="text-xl font-bold mb-4"><i class="fas fa-plus"></i> Tambah Buku</h2>
   <form id="form-buku" class="bg-white shadow-md rounded-lg p-4 space-y-3">
-    <input name="kode" type="text" placeholder="Kode Buku" class="w-full p-2 border rounded" required>
     <input name="judul" type="text" placeholder="Judul Buku" class="w-full p-2 border rounded" required>
     <input name="pengarang" type="text" placeholder="Pengarang" class="w-full p-2 border rounded">
     <input name="penerjemah" type="text" placeholder="Penerjemah" class="w-full p-2 border rounded">
@@ -519,7 +517,7 @@
            class="w-full p-2 border rounded" required />
     <input name="idAnggota" type="text" placeholder="ID Anggota"
            class="w-full p-2 border rounded" required />
-    <input name="kodeBuku" type="text" placeholder="Kode Buku"
+    <input name="noInventaris" type="text" placeholder="No Inventaris"
            class="w-full p-2 border rounded" required />
 
     <!-- Tanggal Pinjam -->
@@ -565,7 +563,7 @@
           <tr>
             <th class="p-2">ID Pinjam</th>
             <th class="p-2">ID Anggota</th>
-            <th class="p-2">Kode Buku</th>
+            <th class="p-2">No Inventaris</th>
             <th class="p-2">Tanggal Pinjam</th>
 	    <th class="p-2">Tanggal Kembali</th>
           </tr>
@@ -679,7 +677,9 @@
         <tbody id="tbody-laporan-anggota-aktif"></tbody>
       </table>
     </section>
-	  
+
+
+
   </main>
 
   <!-- Script -->
