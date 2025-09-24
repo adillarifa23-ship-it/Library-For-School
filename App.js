@@ -91,6 +91,8 @@ function showPage(page) {
   // update dashboard stats & charts if needed
   renderAll();
 }
+
+// ---------- Render Functions ----------
 // ---------- Pagination Variables ----------
 let currentBookPage = 1;
 let currentMemberPage = 1;
@@ -203,10 +205,10 @@ function renderMembers(page = currentMemberPage) {
         <button onclick="hapusAnggota('${item.id}')" class="text-red-600 ml-2">Hapus</button>
       </td>
     `;
-
     tb.appendChild(tr);
   });
 
+  // tombol pagination anggota
   const pagDiv = document.getElementById('member-pagination');
   if (pagDiv) {
     pagDiv.innerHTML = '';
@@ -219,7 +221,9 @@ function renderMembers(page = currentMemberPage) {
     }
   }
 
-  document.getElementById('stat-total-anggota').innerText = arr.length;
+  // update statistik total anggota kalau ada elemen stat-total-anggota
+  const stat = document.getElementById('stat-total-anggota');
+  if (stat) stat.innerText = arr.length;
 }
 
 
