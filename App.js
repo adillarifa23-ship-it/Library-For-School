@@ -91,25 +91,37 @@ function showPage(page) {
   // update dashboard stats & charts if needed
   renderAll();
 }
+// ---------- Pagination Variables ----------
+let currentBookPage = 1;
+let currentMemberPage = 1;
+const pageSize = 50;        // buku per halaman
+const memberPageSize = 50;  // anggota per halaman
 
-// ---------- Render Functions ----------
-function renderBooks() {
+// ---------- Render Buku ----------
+function renderBooks(page = currentBookPage) {
   const tb = document.getElementById('tbody-books');
-  const arr = load(STORAGE_KEYS.books);
+  const arr = load(STORAGE_KEYS.books) || [];
 
   const q = (document.getElementById('searchBuku')?.value || '').toLowerCase();
-
   const filtered = arr.filter(item =>
     String(item.kode || '').toLowerCase().includes(q) ||
     String(item.judul || '').toLowerCase().includes(q)
   );
 
+  const totalPages = Math.ceil(filtered.length / pageSize) || 1;
+  if (page > totalPages) page = totalPages;
+  currentBookPage = page;
+
+  const start = (page - 1) * pageSize;
+  const end = start + pageSize;
+  const dataPage = filtered.slice(start, end);
+
   tb.innerHTML = '';
-  filtered.forEach((item, idx) => {
+  dataPage.forEach((item, idx) => {
     const tr = document.createElement('tr');
     tr.className = 'border-b';
     tr.innerHTML = `
-      <td class="p-2">${idx + 1}</td>
+      <td class="p-2">${start + idx + 1}</td>
       <td class="p-2">${item.judul || ''}</td>
       <td class="p-2">${item.pengarang || ''}</td>
       <td class="p-2">${item.penerjemah || ''}</td>
@@ -131,35 +143,54 @@ function renderBooks() {
       <td class="p-2">${item.asal || ''}</td>
       <td class="p-2">${item.keterangan || ''}</td>
       <td class="p-2">${item.harga || ''}</td>
-	<button onclick="editBuku('${item.kode}')" class="text-blue-600">Edit</button>
+      <td class="p-2">
+        <button onclick="editBuku('${item.kode}')" class="text-blue-600">Edit</button>
         <button onclick="hapusBuku('${item.kode}')" class="text-red-600 ml-2">Hapus</button>
       </td>
     `;
     tb.appendChild(tr);
   });
 
+  const pagDiv = document.getElementById('book-pagination');
+  if (pagDiv) {
+    pagDiv.innerHTML = '';
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = i;
+      btn.className = `px-2 py-1 rounded ${i === page ? 'bg-indigo-700 text-white' : 'bg-gray-200'}`;
+      btn.onclick = () => renderBooks(i);
+      pagDiv.appendChild(btn);
+    }
+  }
+
   document.getElementById('stat-total-buku').innerText = arr.length;
 }
 
-
-function renderMembers() {
+// ---------- Render Anggota ----------
+function renderMembers(page = currentMemberPage) {
   const tb = document.getElementById('tbody-members');
-  const arr = load(STORAGE_KEYS.members);
+  const arr = load(STORAGE_KEYS.members) || [];
 
   const q = (document.getElementById('searchAnggota')?.value || '').toLowerCase();
-
-  // ? pastikan nilai dikonversi ke string dulu
   const filtered = arr.filter(item =>
     String(item.id || '').toLowerCase().includes(q) ||
     String(item.nama || '').toLowerCase().includes(q)
   );
 
+  const totalPages = Math.ceil(filtered.length / memberPageSize) || 1;
+  if (page > totalPages) page = totalPages;
+  currentMemberPage = page;
+
+  const start = (page - 1) * memberPageSize;
+  const end = start + memberPageSize;
+  const dataPage = filtered.slice(start, end);
+
   tb.innerHTML = '';
-  filtered.forEach((item, idx) => {
+  dataPage.forEach((item, idx) => {
     const tr = document.createElement('tr');
     tr.className = 'border-b';
     tr.innerHTML = `
-      <td class="p-2">${idx + 1}</td>
+      <td class="p-2">${start + idx + 1}</td>
       <td class="p-2">${item.id || ''}</td>
       <td class="p-2">${item.nama || ''}</td>
       <td class="p-2">${item.kelamin || ''}</td>
@@ -168,16 +199,28 @@ function renderMembers() {
       <td class="p-2">${item.hp || ''}</td>
       <td class="p-2">${item.status || ''}</td>
       <td class="p-2">
-      <button onclick="editAnggota('${item.id}')" class="text-blue-600">Edit</button>
-      <button onclick="hapusAnggota('${item.id}')" class="text-red-600 ml-2">Hapus</button>
+        <button onclick="editAnggota('${item.id}')" class="text-blue-600">Edit</button>
+        <button onclick="hapusAnggota('${item.id}')" class="text-red-600 ml-2">Hapus</button>
       </td>
     `;
+
     tb.appendChild(tr);
   });
 
+  const pagDiv = document.getElementById('member-pagination');
+  if (pagDiv) {
+    pagDiv.innerHTML = '';
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = i;
+      btn.className = `px-2 py-1 rounded ${i === page ? 'bg-indigo-700 text-white' : 'bg-gray-200'}`;
+      btn.onclick = () => renderMembers(i);
+      pagDiv.appendChild(btn);
+    }
+  }
+
   document.getElementById('stat-total-anggota').innerText = arr.length;
 }
-
 
 
 function renderLoans() {
@@ -846,29 +889,34 @@ function editBuku(kode) {
 
 
 
-// Hapus semua anggota
+// Hapus satu anggota
 function hapusAnggota(id) {
   if (confirm("Yakin ingin menghapus anggota dengan ID " + id + "?")) {
-    let arr = load(STORAGE_KEYS.members);
+    let arr = load(STORAGE_KEYS.members) || [];
+    // buang anggota dengan id tersebut
     arr = arr.filter(m => m.id !== id);
+    // simpan kembali ke localStorage
     save(STORAGE_KEYS.members, arr);
-    renderMembers();
-    alert("Semua data anggota berhasil dihapus!");
-  }
-}
-
-function hapusAnggota(id) {
-  if (confirm("Yakin ingin menghapus anggota dengan ID " + id + "?")) {
-    let arr = load(STORAGE_KEYS.members);
-    arr = arr.filter(m => m.id !== id);
-    save(STORAGE_KEYS.members, arr);
-    renderMembers();
+    // render ulang tabel anggota ke halaman 1
+    renderMembers(1);
     alert("Anggota berhasil dihapus!");
   }
 }
 
+// Hapus semua anggota
+function hapusSemuaAnggota() {
+  if (confirm("Apakah Anda yakin ingin menghapus semua data anggota?")) {
+    // kosongkan array anggota
+    save(STORAGE_KEYS.members, []);
+    // render ulang tabel anggota supaya kosong
+    renderMembers(1);
+    alert("Semua data anggota berhasil dihapus!");
+  }
+}
+
+// Edit anggota
 function editAnggota(id) {
-  let arr = load(STORAGE_KEYS.members);
+  let arr = load(STORAGE_KEYS.members) || [];
   const index = arr.findIndex(m => m.id === id);
   if (index === -1) return;
 
@@ -878,9 +926,10 @@ function editAnggota(id) {
 
   arr[index].nama = namaBaru;
   save(STORAGE_KEYS.members, arr);
-  renderMembers();
+  renderMembers(1);
   alert("Anggota berhasil diperbarui!");
 }
+
 
 
 // Hapus semua peminjaman
