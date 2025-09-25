@@ -126,7 +126,7 @@ function renderBooks(page = currentBookPage) {
       <td class="p-2">${start + idx + 1}</td>
       <td class="p-2">${item.judul || ''}</td>
       <td class="p-2">${item.pengarang || ''}</td>
-      <td class="p-2">${item.penerjemah || ''}</td>
+      <td class="p-2">${item.kodeBarang || ''}</td>
       <td class="p-2">${item.penerbit || ''}</td>
       <td class="p-2">${item.tahun || ''}</td>
       <td class="p-2">${item.tempat || ''}</td>
@@ -143,7 +143,7 @@ function renderBooks(page = currentBookPage) {
       <td class="p-2">${item.noInventaris || ''}</td>
       <td class="p-2">${item.rak || ''}</td>
       <td class="p-2">${item.asal || ''}</td>
-      <td class="p-2">${item.keterangan || ''}</td>
+      <td class="p-2">${item.sekolah || ''}</td>
       <td class="p-2">${item.harga || ''}</td>
       <td class="p-2">
         <button onclick="editBuku('${item.noInventaris}')" class="text-blue-600">Edit</button>
@@ -1070,7 +1070,6 @@ function hapusSemuaRiwayat() {
     alert("Semua data riwayat berhasil dihapus!");
   }
 }
-
 
 
 
