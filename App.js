@@ -227,15 +227,25 @@ function renderMembers(page = currentMemberPage) {
 }
 
 // ---------- Render Peminjaman ----------
-function renderLoans() {
+let currentLoanPage = 1;
+const loanPageSize = 20;
+
+function renderLoans(page = currentLoanPage) {
   const tb = document.getElementById('tbody-loans');
   const arr = load(STORAGE_KEYS.loans) || [];
   const members = load(STORAGE_KEYS.members) || [];
-  tb.innerHTML = '';
 
-  arr.forEach((item, idx) => {
-    // normalisasi id biar case-insensitive dan tanpa spasi
-    const anggota = members.find(m => 
+  const totalPages = Math.ceil(arr.length / loanPageSize) || 1;
+  if (page > totalPages) page = totalPages;
+  currentLoanPage = page;
+
+  const start = (page - 1) * loanPageSize;
+  const end = start + loanPageSize;
+  const dataPage = arr.slice(start, end);
+
+  tb.innerHTML = '';
+  dataPage.forEach((item, idx) => {
+    const anggota = members.find(m =>
       String(m.id || '').trim().toLowerCase() === String(item.idAnggota || '').trim().toLowerCase()
     );
     const nama = anggota ? anggota.nama : "-";
@@ -243,11 +253,14 @@ function renderLoans() {
     const tr = document.createElement('tr');
     tr.className = 'border-b';
     tr.innerHTML = `
-      <td class="p-2">${idx + 1}</td>
+      <td class="p-2">${start + idx + 1}</td>
       <td class="p-2">${item.idAnggota || ''}</td>
       <td class="p-2">${nama}</td>
       <td class="p-2">${item.tglPinjam || ''}</td>
       <td class="p-2">${item.tglKembali || ''}</td>
+      <td class="p-2">
+        <button onclick="hapusLoan(${start + idx})" class="text-red-600">Hapus</button>
+      </td>
     `;
     tb.appendChild(tr);
   });
@@ -979,8 +992,14 @@ function editBuku(identifier) {
   alert('Data buku berhasil diperbarui!');
 }
 
-
-
+function hapusLoan(index) {
+  let loans = load(STORAGE_KEYS.loans) || [];
+  if (confirm("Yakin ingin menghapus data peminjaman ini?")) {
+    loans.splice(index, 1); // hapus 1 item sesuai index
+    save(STORAGE_KEYS.loans, loans);
+    renderLoans(); // refresh tabel
+  }
+}
 
 // Hapus satu anggota
 function hapusAnggota(id) {
