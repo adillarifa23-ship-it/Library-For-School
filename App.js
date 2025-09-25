@@ -146,8 +146,8 @@ function renderBooks(page = currentBookPage) {
       <td class="p-2">${item.keterangan || ''}</td>
       <td class="p-2">${item.harga || ''}</td>
       <td class="p-2">
-        <button onclick="editBuku('${item.kode}')" class="text-blue-600">Edit</button>
-        <button onclick="hapusBuku('${item.kode}')" class="text-red-600 ml-2">Hapus</button>
+        <button onclick="editBuku('${item.noInventaris}')" class="text-blue-600">Edit</button>
+        <button onclick="hapusBuku('${item.noInventaris}')" class="text-red-600 ml-2">Hapus</button>
       </td>
     `;
     tb.appendChild(tr);
@@ -226,64 +226,98 @@ function renderMembers(page = currentMemberPage) {
   if (stat) stat.innerText = arr.length;
 }
 
-
+// ---------- Render Peminjaman ----------
 function renderLoans() {
   const tb = document.getElementById('tbody-loans');
-  const arr = load(STORAGE_KEYS.loans);
+  const arr = load(STORAGE_KEYS.loans) || [];
+  const members = load(STORAGE_KEYS.members) || [];
   tb.innerHTML = '';
-  arr.forEach(item => {
+
+  arr.forEach((item, idx) => {
+    // normalisasi id biar case-insensitive dan tanpa spasi
+    const anggota = members.find(m => 
+      String(m.id || '').trim().toLowerCase() === String(item.idAnggota || '').trim().toLowerCase()
+    );
+    const nama = anggota ? anggota.nama : "-";
+
     const tr = document.createElement('tr');
     tr.className = 'border-b';
     tr.innerHTML = `
-      <td class="p-2">${item.id || ''}</td>
+      <td class="p-2">${idx + 1}</td>
       <td class="p-2">${item.idAnggota || ''}</td>
-      <td class="p-2">${item.noInventaris || ''}</td>
+      <td class="p-2">${nama}</td>
       <td class="p-2">${item.tglPinjam || ''}</td>
       <td class="p-2">${item.tglKembali || ''}</td>
     `;
     tb.appendChild(tr);
   });
 
-  // update statistik (kalau ada)
-  if (document.getElementById('stat-total-peminjaman')) {
-    document.getElementById('stat-total-peminjaman').innerText = arr.length;
-  }
+  const stat = document.getElementById('stat-total-peminjaman');
+  if (stat) stat.innerText = arr.length;
 }
 
 
+// ---------- Render Pengembalian ----------
 function renderReturns() {
   const tb = document.getElementById('tbody-returns');
-  const arr = load(STORAGE_KEYS.returns);
+  const arr = load(STORAGE_KEYS.returns) || [];
+  const members = load(STORAGE_KEYS.members) || []; // ambil data anggota
   tb.innerHTML = '';
   let terlambat = 0;
-  arr.forEach(item => {
+
+  arr.forEach((item, idx) => {
+    // cari anggota sesuai id
+    const anggota = members.find(m =>
+      String(m.id || '').trim().toLowerCase() === String(item.idAnggota || '').trim().toLowerCase()
+    );
+    const nama = anggota ? anggota.nama : "-";
+
     const tr = document.createElement('tr');
     tr.className = 'border-b';
-    tr.innerHTML = `<td class="p-2">${item.id||''}</td>
-                    <td class="p-2">${item.idPinjam||''}</td>
-                    <td class="p-2">${item.tglKembali||''}</td>
-                    <td class="p-2 text-red-600">${item.denda ? 'Rp ' + item.denda : 'Rp 0'}</td>`;
+    tr.innerHTML = `
+      <td class="p-2">${idx + 1}</td>
+      <td class="p-2">${item.idAnggota || ''}</td>
+      <td class="p-2">${nama}</td>
+      <td class="p-2">${item.tglKembali || ''}</td>
+      <td class="p-2 text-red-600">${item.denda ? 'Rp ' + item.denda : 'Rp 0'}</td>
+    `;
     tb.appendChild(tr);
+
     if (item.denda && Number(item.denda) > 0) terlambat++;
   });
-  document.getElementById('stat-total-terlambat').innerText = terlambat;
+
+  const statTerlambat = document.getElementById('stat-total-terlambat');
+  if (statTerlambat) statTerlambat.innerText = terlambat;
 }
 
+
+
+// ---------- Render Riwayat ----------
 function renderHistory() {
-  const tb = document.getElementById('tbody-history');
   const loans = load(STORAGE_KEYS.loans);
   const returns = load(STORAGE_KEYS.returns);
+  const members = load(STORAGE_KEYS.members);
+  const tb = document.getElementById('tbody-history');
+  if (!tb) return;
   tb.innerHTML = '';
-  // combine loans + returns by id (simple)
-  loans.forEach(l => {
-    const r = returns.find(x => x.idPinjam == l.id);
+
+  loans.forEach((loan, i) => {
+    const anggota = members.find(m => 
+  String(m.id).trim().toLowerCase() === String(loan.idAnggota).trim().toLowerCase()
+);
+const nama = anggota ? anggota.nama : "-";
+    const ret = returns.find(r => r.idAnggota === loan.idAnggota);
+
     const tr = document.createElement('tr');
     tr.className = 'border-b';
-    tr.innerHTML = `<td class="p-2">${l.id||''}</td>
-                    <td class="p-2">${l.idAnggota||''}</td>
-                    <td class="p-2">${l.noInventaris||''}</td>
-                    <td class="p-2">${l.tglPinjam||''}</td>
-                    <td class="p-2">${r ? r.tglKembali : '-'}</td>`;
+    tr.innerHTML = `
+      <td class="p-2">${i+1}</td>
+      <td class="p-2">${loan.idAnggota}</td>
+      <td class="p-2">${nama}</td>
+      <td class="p-2">${loan.noInventaris}</td>
+      <td class="p-2">${loan.tglPinjam}</td>
+      <td class="p-2">${ret ? ret.tglKembali : '-'}</td>
+    `;
     tb.appendChild(tr);
   });
 }
@@ -418,43 +452,52 @@ if (formBuku) {
   }
 
 // ---------- Form Peminjaman ----------
-const formLoan = document.getElementById('form-loan');
-if (formLoan) {
-  formLoan.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const data = new FormData(this);
-    const obj = {};
-    for (const [k,v] of data.entries()) obj[k] = v;
+document.getElementById("form-loan").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const loans = load(STORAGE_KEYS.loans) || [];
 
-    let loans = load(STORAGE_KEYS.loans) || [];
-    loans.push(obj);
-    save(STORAGE_KEYS.loans, loans);
+  const newLoan = {
+    idAnggota: form.idAnggota.value.trim(),
+    noInventaris: form.noInventaris.value.trim(),
+    tglPinjam: form.tglPinjam.value,
+    tglKembali: form.tglKembali.value
+  };
 
-    renderLoans();
-    this.reset();
-    alert('Peminjaman berhasil disimpan!');
-  });
-}
+  loans.push(newLoan);
+  save(STORAGE_KEYS.loans, loans);
 
-
+  form.reset();
+  renderLoans();
+  renderHistory();
+  renderReports();
+  updateCharts();
+  alert("Peminjaman berhasil disimpan!");
+});
 
 
   // Returns (pengembalian)
-  const formReturn = document.getElementById('form-return');
-  if (formReturn) {
-    formReturn.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const data = new FormData(this);
-      const obj = {};
-      for (const [k,v] of data.entries()) obj[k]=v;
-      const arr = load(STORAGE_KEYS.returns);
-      arr.push(obj);
-      save(STORAGE_KEYS.returns, arr);
-      this.reset();
-      renderReturns(); renderHistory(); renderReports(); updateCharts();
-      alert('Pengembalian tersimpan!');
-    });
-  }
+document.getElementById("form-return").addEventListener("submit", function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const returns = load(STORAGE_KEYS.returns) || [];
+
+  const newReturn = {
+    idAnggota: form.idAnggota.value.trim(),
+    tglKembali: form.tglKembali.value,
+    denda: form.denda.value
+  };
+
+  returns.push(newReturn);
+  save(STORAGE_KEYS.returns, returns);
+
+  form.reset();
+  renderReturns();
+  renderHistory();
+  renderReports();
+  updateCharts();
+  alert("Pengembalian berhasil disimpan!");
+});
 
 
 // Perpanjangan
@@ -645,51 +688,49 @@ function printCard() {
   win.print();
 }
 
-
 function generateLabel(e) {
   e.preventDefault();
-  const kode = document.getElementById('labelKode').value;
+  const kode = document.getElementById('labelKode').value.trim();
   if (!kode) { 
-    alert('Masukkan kode buku'); 
+    alert('Masukkan kode atau no inventaris'); 
     return; 
   }
 
-  // ambil data buku dari localStorage
-const books = load(STORAGE_KEYS.books);
-const book = books.find(b => b.kode === kode);
+  const books = load(STORAGE_KEYS.books);
+  console.log("Books di localStorage:", books);
 
-// bikin HTML untuk label tanpa awalan teks
-const htmlOutput = `
-  <div style="width:76mm; height:36mm; border:2px solid red; border-radius:6px; 
-              padding:6px; font-family:'Times New Roman', Times, serif; 
-              display:flex; flex-direction:column; justify-content:center; align-items:center;">
+  // cari buku (konversi semua ke string biar aman)
+  const book = books.find(b => {
+    const ni = String(b.noInventaris || '').trim().toLowerCase();
+    const kd = String(b.kode || '').trim().toLowerCase();
+    return ni === kode.toLowerCase() || kd === kode.toLowerCase();
+  });
 
-    <div style="font-size:15px; font-weight:bold; margin-bottom:8px; text-align:center; text-decoration: underline;">
-      Perpustakaan SD Negeri 12 Padang Lua
-    </div>
-
-    <div style="font-size:14px; line-height:1.4; text-align:center; width:95%;">
-      <div>${book ? book.DDC : DDC}</div>
-      <div>${book ? (book.judul ? book.judul.substring(0,3).toUpperCase() : '-') : '-'}</div>
-      <div>${book ? (book.pengarang ? book.pengarang.substring(0,3).toUpperCase() : '-') : '-'}</div>
-      <div>${book ? (book.rak || '-') : '-'}</div>
-    </div>
-  </div>
-`;
-
-// masukkan ke div labelArea
-document.getElementById('labelArea').innerHTML = htmlOutput;
-
-
-  // tampilkan tombol print & copy
-  if (document.getElementById("btnPrintLabel")) {
-    document.getElementById("btnPrintLabel").classList.remove("hidden");
+  if (!book) {
+    alert("Buku tidak ditemukan untuk kode/noInventaris: " + kode);
+    return;
   }
-  if (document.getElementById("btnCopyLabel")) {
-    document.getElementById("btnCopyLabel").classList.remove("hidden");
-  }
+
+  const htmlOutput = `
+    <div style="width:76mm; height:36mm; border:2px solid red; border-radius:6px; 
+                padding:6px; font-family:'Times New Roman', Times, serif; 
+                display:flex; flex-direction:column; justify-content:center; align-items:center;">
+      <div style="font-size:15px; font-weight:bold; margin-bottom:8px; text-align:center; text-decoration: underline;">
+        Perpustakaan SD Negeri 12 Padang Lua
+      </div>
+      <div style="font-size:14px; line-height:1.4; text-align:center; width:95%;">
+        <div>${book.ddc || '-'}</div>
+        <div>${book.judul ? book.judul.substring(0,3).toUpperCase() : '-'}</div>
+        <div>${book.pengarang ? book.pengarang.substring(0,3).toUpperCase() : '-'}</div>
+        <div>${book.rak || '-'}</div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('labelArea').innerHTML = htmlOutput;
+  document.getElementById("btnPrintLabel")?.classList.remove("hidden");
+  document.getElementById("btnCopyLabel")?.classList.remove("hidden");
 }
-
 
 
 function printLabel() {
@@ -866,30 +907,78 @@ function hapusSemuaBuku() {
   }
 }
 
-function hapusBuku(kode) {
-  if (confirm("Yakin ingin menghapus buku dengan kode " + kode + "?")) {
-    let arr = load(STORAGE_KEYS.books);
-    arr = arr.filter(b => b.kode !== kode);
+function hapusBuku(noInv) {
+  if (confirm("Yakin ingin menghapus buku dengan No Inventaris " + noInv + "?")) {
+    let arr = load(STORAGE_KEYS.books) || [];
+    console.log("Sebelum hapus:", arr.length);
+
+    arr = arr.filter(b => String(b.noInventaris || "").trim() !== String(noInv).trim());
+
+    console.log("Sesudah hapus:", arr.length);
+
     save(STORAGE_KEYS.books, arr);
     renderBooks();
     alert("Buku berhasil dihapus!");
   }
 }
 
-function editBuku(kode) {
-  let arr = load(STORAGE_KEYS.books);
-  const index = arr.findIndex(b => b.kode === kode);
-  if (index === -1) return;
 
-  const buku = arr[index];
-  const jumlahBaru = prompt("Ubah Jumlah Buku:", buku.jumlah || "");
-  if (jumlahBaru === null) return;
+function editBuku(identifier) {
+  if (typeof identifier === 'undefined' || identifier === null || String(identifier).trim() === '') {
+    alert('Identifier buku kosong. Tidak dapat mengedit.');
+    return;
+  }
 
-  arr[index].jumlah = jumlahBaru;
+  const key = String(identifier).trim().toLowerCase();
+  let arr = load(STORAGE_KEYS.books) || [];
+
+  const idx = arr.findIndex(b => {
+    const ni = String(b.noInventaris || b.NoInventaris || '').trim().toLowerCase();
+    const kd = String(b.kode || '').trim().toLowerCase();
+    const id = String(b.id || '').trim().toLowerCase();
+    // juga cocokkan dengan judul kalau perlu (opsional)
+    return ni === key || kd === key || id === key;
+  });
+
+  if (idx === -1) {
+    alert('Buku tidak ditemukan untuk identifier: ' + identifier);
+    console.log('Cari identifier:', identifier);
+    console.log('Contoh beberapa buku:', arr.slice(0,5));
+    return;
+  }
+
+  const buku = arr[idx];
+
+  // contoh edit beberapa field singkat (ubah sesuai kebutuhan)
+  const newJudul = prompt('Ubah Judul:', buku.judul || '');
+  if (newJudul === null) return; // batal
+  buku.judul = newJudul;
+
+  const newPengarang = prompt('Ubah Pengarang:', buku.pengarang || '');
+  if (newPengarang === null) return;
+  buku.pengarang = newPengarang;
+
+  const newTahun = prompt('Ubah Tahun:', buku.tahun || '');
+  if (newTahun === null) return;
+  buku.tahun = newTahun;
+
+  const newJumlah = prompt('Ubah Jumlah:', buku.jumlah || '');
+  if (newJumlah === null) return;
+  buku.jumlah = newJumlah;
+
+  // jika perlu, perbolehkan mengubah noInventaris juga (hati-hati duplikat)
+  const newNoInv = prompt('Ubah No Inventaris:', buku.noInventaris || buku.NoInventaris || '');
+  if (newNoInv === null) return;
+  buku.noInventaris = newNoInv;
+
+  // simpan kembali
+  arr[idx] = buku;
   save(STORAGE_KEYS.books, arr);
+
   renderBooks();
-  alert("Buku berhasil diperbarui!");
+  alert('Data buku berhasil diperbarui!');
 }
+
 
 
 
@@ -981,7 +1070,6 @@ function hapusSemuaRiwayat() {
     alert("Semua data riwayat berhasil dihapus!");
   }
 }
-
 
 
 
