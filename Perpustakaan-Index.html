@@ -337,7 +337,7 @@
 <section id="page-cetakLabel" class="hidden">
   <h2 class="text-xl font-bold mb-4"><i class="fas fa-tag"></i> Cetak Label Buku</h2>
   <form id="form-cetak-label" class="space-y-2 bg-white p-4 rounded shadow">
-    <input id="labelKode" type="text" placeholder="Masukkan Kode Buku" class="w-full p-2 border rounded">
+    <input id="labelKode" type="text" placeholder="Masukkan No Inventaris Buku" class="w-full p-2 border rounded">
     <button onclick="generateLabel(event)" class="bg-indigo-900 text-white px-4 py-2 rounded">Cetak Label</button>
   </form>
   <div id="labelArea" class="mt-4"></div>
@@ -345,14 +345,6 @@
   <button id="btnPrintLabel" onclick="printLabel()" class="hidden bg-green-600 text-white px-3 py-1 rounded">Print</button>
   <button id="btnCopyLabel" onclick="copyLabel()" class="hidden bg-yellow-500 text-white px-3 py-1 rounded">Salin</button>
   </div>
-  <button id="btnCopyLabel" onclick="copyLabel()" 
-          class="hidden mt-3 bg-green-600 text-white px-4 py-2 rounded">
-  Salin Kode Label
-  </button>
-  <button onclick="printLabel()" id="btnPrintLabel"
-          class="mt-3 bg-blue-600 text-white px-4 py-2 rounded hidden">
-    Print Label
-  </button>
 </section>
 
 
@@ -511,94 +503,89 @@
 </section>
 
 
+
 <!-- Peminjaman -->
 <section id="page-peminjaman" class="hidden">
   <h2 class="text-xl font-bold mb-4"><i class="fas fa-book-reader"></i> Form Peminjaman</h2>
   <form id="form-loan" class="bg-white shadow-md rounded-lg p-4 space-y-3">
-    <input name="id" type="text" placeholder="ID Pinjam"
-           class="w-full p-2 border rounded" required />
     <input name="idAnggota" type="text" placeholder="ID Anggota"
            class="w-full p-2 border rounded" required />
     <input name="noInventaris" type="text" placeholder="No Inventaris"
            class="w-full p-2 border rounded" required />
-
-    <!-- Tanggal Pinjam -->
     <input name="tglPinjam" type="date"
            class="w-full p-2 border rounded" required />
-
-    <!-- Tanggal Kembali (pilih manual) -->
     <input name="tglKembali" type="date"
            class="w-full p-2 border rounded" required />
     <button type="submit" class="bg-indigo-900 text-white px-4 py-2 rounded">Simpan</button>
   </form>
 </section>
 
+<!-- Pengembalian -->
+<section id="page-pengembalian" class="hidden">
+  <h2 class="text-xl font-bold mb-4"><i class="fas fa-undo-alt"></i> Form Pengembalian</h2>
+  <form id="form-return" class="bg-white shadow-md rounded-lg p-4 space-y-3">
+    <input name="idAnggota" type="text" placeholder="ID Anggota"
+           class="w-full p-2 border rounded" required />
+    <input name="tglKembali" type="date"
+           class="w-full p-2 border rounded" required />
+    <input name="denda" type="number" placeholder="Denda (Rp)"
+           class="w-full p-2 border rounded" />
+    <button class="bg-indigo-900 text-white px-4 py-2 rounded">Simpan</button>
+  </form>
+</section>
 
 
-    <!-- Pengembalian -->
-    <section id="page-pengembalian" class="hidden">
-      <h2 class="text-xl font-bold mb-4"><i class="fas fa-undo-alt"></i> Form Pengembalian</h2>
-      <form id="form-return" class="bg-white shadow-md rounded-lg p-4 space-y-3">
-        <input name="id" type="text" placeholder="ID Kembali" class="w-full p-2 border rounded" required />
-        <input name="idPinjam" type="text" placeholder="ID Pinjam" class="w-full p-2 border rounded" required />
-        <input name="tglKembali" type="date" placeholder="Tanggal Kembali" class="w-full p-2 border rounded" />
-        <input name="denda" type="number" placeholder="Denda (Rp)" class="w-full p-2 border rounded" />
-        <button class="bg-indigo-900 text-white px-4 py-2 rounded">Simpan</button>
-      </form>
-    </section>
-
-    <!-- Data Peminjaman -->
-        <!-- Data Peminjaman -->
-    <section id="page-dataPeminjaman" class="hidden">
-      <h2 class="text-xl font-bold mb-4"><i class="fas fa-database"></i> Data Peminjaman</h2>
-      <div class="flex gap-2 mb-3">
-        <button onclick="exportDataToFile('loans', 'loans_export')" 
-                class="bg-blue-500 px-3 py-1 rounded text-white">Export CSV</button>
-        <button onclick="exportDataToXLSX('loans', 'loans_export.xlsx')" 
-                class="bg-green-600 px-3 py-1 rounded text-white">Export XLSX</button>
-        <!-- ?? Tombol hapus semua peminjaman -->
-        <button onclick="hapusSemuaPeminjaman()" 
-                class="bg-red-600 px-3 py-1 rounded text-white">Hapus Semua</button>
-      </div>
-      <table class="w-full bg-white shadow-md rounded-lg overflow-hidden">
-        <thead class="bg-indigo-900 text-white">
-          <tr>
-            <th class="p-2">ID Pinjam</th>
-            <th class="p-2">ID Anggota</th>
-            <th class="p-2">No Inventaris</th>
-            <th class="p-2">Tanggal Pinjam</th>
-	    <th class="p-2">Tanggal Kembali</th>
-          </tr>
-        </thead>
-        <tbody id="tbody-loans"></tbody>
-      </table>
-    </section>
+<!-- Data Peminjaman -->
+<section id="page-dataPeminjaman" class="hidden">
+  <h2 class="text-xl font-bold mb-4"><i class="fas fa-database"></i> Data Peminjaman</h2>
+  <div class="flex gap-2 mb-3">
+    <button onclick="exportDataToFile('loans', 'loans_export')" 
+            class="bg-blue-500 px-3 py-1 rounded text-white">Export CSV</button>
+    <button onclick="exportDataToXLSX('loans', 'loans_export.xlsx')" 
+            class="bg-green-600 px-3 py-1 rounded text-white">Export XLSX</button>
+    <button onclick="hapusSemuaPeminjaman()" 
+            class="bg-red-600 px-3 py-1 rounded text-white">Hapus Semua</button>
+  </div>
+  <table class="w-full bg-white shadow-md rounded-lg overflow-hidden">
+    <thead class="bg-indigo-900 text-white">
+      <tr>
+        <th class="p-2">No</th>
+        <th class="p-2">ID Anggota</th>
+        <th class="p-2">Nama Anggota</th>
+        <th class="p-2">Tanggal Pinjam</th>
+        <th class="p-2">Tanggal Kembali</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-loans"></tbody>
+  </table>
+</section>
 
 
     <!-- Data Pengembalian -->
-    <section id="page-dataPengembalian" class="hidden">
-      <h2 class="text-xl font-bold mb-4"><i class="fas fa-clipboard-check"></i> Data Pengembalian</h2>
-      <div class="flex gap-2 mb-3">
-        <button onclick="exportDataToFile('returns', 'returns_export')" 
-                class="bg-blue-500 px-3 py-1 rounded text-white">Export CSV</button>
-        <button onclick="exportDataToXLSX('returns', 'returns_export.xlsx')" 
-                class="bg-green-600 px-3 py-1 rounded text-white">Export XLSX</button>
-        <!-- ?? Tombol hapus semua pengembalian -->
-        <button onclick="hapusSemuaPengembalian()" 
-                class="bg-red-600 px-3 py-1 rounded text-white">Hapus Semua</button>
-      </div>
-      <table class="w-full bg-white shadow-md rounded-lg overflow-hidden">
-        <thead class="bg-indigo-900 text-white">
-          <tr>
-            <th class="p-2">ID Kembali</th>
-            <th class="p-2">ID Pinjam</th>
-            <th class="p-2">Tanggal Kembali</th>
-            <th class="p-2">Denda</th>
-          </tr>
-        </thead>
-        <tbody id="tbody-returns"></tbody>
-      </table>
-    </section>
+<section id="page-dataPengembalian" class="hidden">
+  <h2 class="text-xl font-bold mb-4"><i class="fas fa-clipboard-check"></i> Data Pengembalian</h2>
+  <div class="flex gap-2 mb-3">
+    <button onclick="exportDataToFile('returns', 'returns_export')" 
+            class="bg-blue-500 px-3 py-1 rounded text-white">Export CSV</button>
+    <button onclick="exportDataToXLSX('returns', 'returns_export.xlsx')" 
+            class="bg-green-600 px-3 py-1 rounded text-white">Export XLSX</button>
+    <button onclick="hapusSemuaPengembalian()" 
+            class="bg-red-600 px-3 py-1 rounded text-white">Hapus Semua</button>
+  </div>
+  <table class="w-full bg-white shadow-md rounded-lg overflow-hidden">
+    <thead class="bg-indigo-900 text-white">
+      <tr>
+        <th class="p-2">No</th>
+        <th class="p-2">ID Anggota</th>
+        <th class="p-2">Nama Anggota</th>
+        <th class="p-2">Tanggal Kembali</th>
+        <th class="p-2">Denda</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-returns"></tbody>
+  </table>
+</section>
+
 
 
     <!-- Perpanjangan -->
@@ -615,24 +602,25 @@
     </section>
 
     <!-- Riwayat -->
-    <section id="page-riwayat" class="hidden">
-      <h2 class="text-xl font-bold mb-4"><i class="fas fa-history"></i> Riwayat Pinjaman</h2>
-      <table class="w-full bg-white shadow-md rounded-lg overflow-hidden">
-        <thead class="bg-indigo-900 text-white">
-          <tr>
-            <th class="p-2">ID</th>
-            <th class="p-2">Nama Anggota</th>
-            <th class="p-2">Judul Buku</th>
-            <th class="p-2">Tanggal Pinjam</th>
-            <th class="p-2">Tanggal Kembali</th>
-          </tr>
-        </thead>
-        <tbody id="tbody-history"></tbody>
-      </table>
-      <!-- ?? Tombol hapus semua riwayat -->
-      <button onclick="hapusSemuaRiwayat()" 
-              class="bg-red-600 px-3 py-1 rounded text-white mt-3">Hapus Semua Riwayat</button>
-    </section>
+<section id="page-riwayat" class="hidden">
+  <h2 class="text-xl font-bold mb-4"><i class="fas fa-history"></i> Riwayat Pinjaman</h2>
+  <table class="w-full bg-white shadow-md rounded-lg overflow-hidden">
+    <thead class="bg-indigo-900 text-white">
+      <tr>
+        <th class="p-2">No</th>
+        <th class="p-2">ID Anggota</th>
+        <th class="p-2">Nama Anggota</th>
+        <th class="p-2">Judul Buku</th>
+        <th class="p-2">Tanggal Pinjam</th>
+        <th class="p-2">Tanggal Kembali</th>
+      </tr>
+    </thead>
+    <tbody id="tbody-history"></tbody>
+  </table>
+  <button onclick="hapusSemuaRiwayat()" 
+          class="bg-red-600 text-white px-3 py-1 rounded mt-3">Hapus Semua Riwayat</button>
+</section>
+
 
     <!-- Laporan Denda -->
     <section id="page-laporanDenda" class="hidden">
@@ -689,4 +677,3 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </body>
 </html>
-
