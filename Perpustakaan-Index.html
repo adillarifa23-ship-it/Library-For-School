@@ -155,8 +155,6 @@
   </aside>
 
 
-
-
   <!-- Konten Utama -->
   <main class="flex-1 p-6 space-y-8">
 
@@ -217,8 +215,6 @@
     </section>
 
 
-
-
     <!-- Daftar Buku -->
 <section id="page-daftarBuku" class="hidden">
   <h2 class="text-xl font-bold mb-4"><i class="fas fa-book"></i> Daftar Buku</h2>
@@ -245,7 +241,7 @@
         <th class="p-2">No</th> <!-- ? Tambah kolom No -->
         <th class="p-2">Judul Buku</th>
         <th class="p-2">Pengarang</th>
-        <th class="p-2">Penerjemah</th>
+        <th class="p-2">Kode Barang</th>
         <th class="p-2">Penerbit</th>
         <th class="p-2">Tahun Terbit</th>
         <th class="p-2">Tempat Terbit</th>
@@ -261,7 +257,7 @@
         <th class="p-2">No. Inventaris</th>
         <th class="p-2">Rak</th>
         <th class="p-2">Asal Buku</th>
-        <th class="p-2">Keterangan</th>
+        <th class="p-2">Sekolah</th>
         <th class="p-2">Harga</th>
 	<th class="p-2">Aksi</th> 
       </tr>
@@ -277,7 +273,7 @@
   <form id="form-buku" class="bg-white shadow-md rounded-lg p-4 space-y-3">
     <input name="judul" type="text" placeholder="Judul Buku" class="w-full p-2 border rounded" required>
     <input name="pengarang" type="text" placeholder="Pengarang" class="w-full p-2 border rounded">
-    <input name="penerjemah" type="text" placeholder="Penerjemah" class="w-full p-2 border rounded">
+    <input name="kodeBarang" type="text" placeholder="Kode Barang" class="w-full p-2 border rounded">
     <input name="penerbit" type="text" placeholder="Penerbit" class="w-full p-2 border rounded">
     <input name="tahun" type="text" placeholder="Tahun Terbit" class="w-full p-2 border rounded">
     <input name="tempat" type="text" placeholder="Tempat Terbit" class="w-full p-2 border rounded">
@@ -294,7 +290,7 @@
     <input name="noInventaris" type="text" placeholder="No. Inventaris" class="w-full p-2 border rounded">
     <input name="rak" type="text" placeholder="Rak" class="w-full p-2 border rounded">
     <input name="asal" type="text" placeholder="Asal Buku" class="w-full p-2 border rounded">
-    <input name="keterangan" type="text" placeholder="Keterangan" class="w-full p-2 border rounded">
+    <input name="sekolah" type="text" placeholder="Sekolah" class="w-full p-2 border rounded">
     <input name="harga" type="number" placeholder="Harga" class="w-full p-2 border rounded" step="0.01">
     <button class="bg-indigo-900 text-white px-4 py-2 rounded" type="submit">Simpan</button>
   </form>
