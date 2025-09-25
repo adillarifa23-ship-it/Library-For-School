@@ -13,3 +13,58 @@ body {
   max-width: 100%;
 }
 
+#kartu-container {
+  background-color: #ffffff !important;
+}
+
+#cardArea, #kartu-container {
+  background-color: #ffffff !important;
+}
+
+/* 1) Jika inner label punya class tertentu (contoh: .label-card atau .card) */
+#labelArea .label-card,
+#labelArea .card,
+#labelArea .label {
+  border: 2px solid #dc2626 !important; /* merah (tailwind red-600) */
+}
+
+/* 2) Jika inner label adalah elemen pertama di dalam #labelArea */
+#labelArea > div {
+  border: 2px solid #dc2626 !important;
+  border-radius: 6px;
+  box-sizing: border-box;
+  background: #fff !important;
+}
+
+/* 3) Fallback: target elemen yang memiliki inline style berisi 'border' */
+#labelArea [style*="border"] {
+  border-color: #dc2626 !important;
+  border-width: 2px !important;
+  border-style: solid !important;
+}
+
+/* === Style Tabel Global === */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table th, 
+table td {
+  border: 1px solid #999;  /* garis kotak */
+  padding: 6px 10px;
+  text-align: left;
+  font-size: 14px;
+  background: #fff;        /* isi tabel putih */
+  color: #000;             /* isi tabel teks hitam */
+}
+
+table th {
+  font-weight: bold;
+  color: #fff;             /* teks header putih */
+  background: #1e1b4b;     /* header biru tua */
+}
+
+
+
+
