@@ -234,16 +234,27 @@ function renderLoans(page = currentLoanPage) {
   const tb = document.getElementById('tbody-loans');
   const arr = load(STORAGE_KEYS.loans) || [];
   const members = load(STORAGE_KEYS.members) || [];
+  tb.innerHTML = '';
 
-  const totalPages = Math.ceil(arr.length / loanPageSize) || 1;
+  // --- Tambahkan pencarian ---
+  const q = (document.getElementById('searchLoan')?.value || '').toLowerCase();
+
+  const filtered = arr.filter(item => {
+    const anggota = members.find(m =>
+      String(m.id || '').trim().toLowerCase() === String(item.idAnggota || '').trim().toLowerCase()
+    );
+    const nama = anggota ? anggota.nama.toLowerCase() : '';
+    return String(item.idAnggota || '').toLowerCase().includes(q) || nama.includes(q);
+  });
+
+  const totalPages = Math.ceil(filtered.length / loanPageSize) || 1;
   if (page > totalPages) page = totalPages;
   currentLoanPage = page;
 
   const start = (page - 1) * loanPageSize;
   const end = start + loanPageSize;
-  const dataPage = arr.slice(start, end);
+  const dataPage = filtered.slice(start, end);
 
-  tb.innerHTML = '';
   dataPage.forEach((item, idx) => {
     const anggota = members.find(m =>
       String(m.id || '').trim().toLowerCase() === String(item.idAnggota || '').trim().toLowerCase()
@@ -265,9 +276,23 @@ function renderLoans(page = currentLoanPage) {
     tb.appendChild(tr);
   });
 
+  // --- Pagination ---
+  const pagDiv = document.getElementById('loan-pagination');
+  if (pagDiv) {
+    pagDiv.innerHTML = '';
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = i;
+      btn.className = `px-2 py-1 rounded ${i === page ? 'bg-indigo-700 text-white' : 'bg-gray-200'}`;
+      btn.onclick = () => renderLoans(i);
+      pagDiv.appendChild(btn);
+    }
+  }
+
   const stat = document.getElementById('stat-total-peminjaman');
   if (stat) stat.innerText = arr.length;
 }
+
 
 
 // ---------- Render Pengembalian ----------
@@ -489,7 +514,7 @@ document.getElementById("form-loan").addEventListener("submit", function(e) {
 });
 
 
-  // Returns (pengembalian)
+// Returns (pengembalian)
 document.getElementById("form-return").addEventListener("submit", function(e) {
   e.preventDefault();
   const form = e.target;
@@ -504,7 +529,13 @@ document.getElementById("form-return").addEventListener("submit", function(e) {
   returns.push(newReturn);
   save(STORAGE_KEYS.returns, returns);
 
+  // --- HAPUS pinjaman yang sesuai dari loans ---
+  let loans = load(STORAGE_KEYS.loans) || [];
+  loans = loans.filter(l => String(l.idAnggota).trim() !== newReturn.idAnggota.trim());
+  save(STORAGE_KEYS.loans, loans);
+
   form.reset();
+  renderLoans();
   renderReturns();
   renderHistory();
   renderReports();
@@ -561,11 +592,15 @@ if (formExt) {
  // --- function untuk barcode buku ---
 function generateBarcode(event) {
   event.preventDefault();
-  const kode = document.getElementById("kodeBarcode").value.trim();
+  let kode = document.getElementById("kodeBarcode").value.trim();
+
   if (!kode) {
     alert("Masukkan kode buku terlebih dahulu!");
     return;
   }
+
+  // bikin selalu 11 digit (dengan leading zero)
+  kode = String(kode).padStart(11, "0");
 
   const area = document.getElementById("barcodeArea");
   area.innerHTML = '<svg id="svgBarcode"></svg>';
