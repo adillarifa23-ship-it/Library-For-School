@@ -589,7 +589,7 @@ if (formExt) {
     formLabel.addEventListener('submit', generateLabel);
   }
 
- // --- function untuk barcode buku ---
+// --- function untuk barcode buku ---
 function generateBarcode(event) {
   event.preventDefault();
   let kode = document.getElementById("kodeBarcode").value.trim();
@@ -599,16 +599,25 @@ function generateBarcode(event) {
     return;
   }
 
-  // bikin selalu 11 digit (dengan leading zero)
-  kode = String(kode).padStart(11, "0");
+  const kodeAsli = kode; // untuk scanner
+  const kodeCetak = kode.padStart(11, "0"); // untuk tampilan teks di barcode
 
   const area = document.getElementById("barcodeArea");
   area.innerHTML = '<svg id="svgBarcode"></svg>';
-  JsBarcode("#svgBarcode", kode, { format: "CODE128", width: 2, height: 60 });
+
+  JsBarcode("#svgBarcode", kodeAsli, { 
+    format: "CODE128",
+    width: 2,
+    height: 60,
+    displayValue: true,
+    text: kodeCetak,   // tampilkan versi 11 digit
+    fontSize: 14
+  });
 
   document.getElementById("btnPrintBarcode").classList.remove("hidden");
   document.getElementById("btnCopyBarcode").classList.remove("hidden");
 }
+
 
 function printBarcode() {
   const printContent = document.getElementById("barcodeArea").innerHTML;
