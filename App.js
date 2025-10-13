@@ -139,7 +139,6 @@ function renderBooks(page = currentBookPage) {
       <td class="p-2">${item.kataKunci || ''}</td>
       <td class="p-2">${item.sumber || ''}</td>
       <td class="p-2">${item.jumlah || ''}</td>
-      <td class="p-2">${item.tglMasuk || ''}</td>
       <td class="p-2">${item.noInventaris || ''}</td>
       <td class="p-2">${item.rak || ''}</td>
       <td class="p-2">${item.asal || ''}</td>
@@ -715,7 +714,6 @@ function downloadCanvas(canvas) {
 }
 
 
-
 function printCard() {
   const kartu = document.getElementById("kartu-container").outerHTML;
   const win = window.open('', '', 'width=800,height=600');
@@ -777,8 +775,8 @@ function generateLabel(e) {
       </div>
       <div style="font-size:14px; line-height:1.4; text-align:center; width:95%;">
         <div>${book.ddc || '-'}</div>
+	<div>${book.noInventaris || '-'}</div>
         <div>${book.judul ? book.judul.substring(0,3).toUpperCase() : '-'}</div>
-        <div>${book.pengarang ? book.pengarang.substring(0,3).toUpperCase() : '-'}</div>
         <div>${book.rak || '-'}</div>
       </div>
     </div>
@@ -1133,6 +1131,5 @@ function hapusSemuaRiwayat() {
     alert("Semua data riwayat berhasil dihapus!");
   }
 }
-
 
 
